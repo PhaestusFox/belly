@@ -138,7 +138,7 @@ fn Animal(ctx: &mut WidgetContext, ch: &mut AnimalState) {
     ctx.render(eml! {
         <button>
             <span {color} c:animal s:background-color=managed()>
-                <img bind:src=from!(this, AnimalState:avatar.image())/>
+                <img modulate="#ffffff00" bind:src=from!(this, AnimalState:avatar.image())/>
                 <span c:label>
                     <label bind:value=from!(this, AnimalState:name)/>
                 </span>
