@@ -23,6 +23,8 @@ const COLORS: &[&str] = &[
     "#ffeb3b", "#ffc107", "#ff9800", "#ff5722",
 ];
 
+use belly_core::relations::props::impls::ColorFn;
+
 fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
     commands.add(StyleSheet::load("color-picker.ess"));
@@ -44,7 +46,7 @@ fn setup(mut commands: Commands) {
                 />
                 <slider c:alpha
                     bind:value=to!(colorbox, BackgroundColor:0|a)
-                    bind:value=from!(colorbox, BackgroundColor:0.a())
+                    bind:value=from!(colorbox, BackgroundColor:0.alpha())
                 />
             </span>
             <img c:colorbox-holder src="trbg.png">

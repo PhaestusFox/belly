@@ -200,8 +200,7 @@ pub fn pointer_input_system(
     let down =
         mouse_button_input.just_pressed(MouseButton::Left) || touches_input.any_just_pressed();
 
-    let is_ui_disabled =
-        |camera_ui| matches!(camera_ui, Some(&Visibility::Visible));
+    let is_ui_disabled = |camera_ui| matches!(camera_ui, Some(&Visibility::Visible));
 
     let cursor_position = camera
         .iter()
@@ -539,8 +538,7 @@ pub fn tab_focus_system(
     if !keyboard.just_pressed(KeyCode::Tab) {
         return;
     }
-    for (entity, _) in elements.iter() {
+    if let Some((entity, _)) = elements.iter().next() {
         requests.send(RequestFocus(entity));
-        break;
     }
 }

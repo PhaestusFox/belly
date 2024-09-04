@@ -8,7 +8,7 @@ use crate::{element::Elements, ess::defaults::Defaults};
 use anyhow::Error;
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt},
-    ecs::system::Command,
+    ecs::world::Command,
     prelude::*,
     reflect::TypePath,
     utils::{hashbrown::hash_map::Keys, BoxedFuture, HashMap},
@@ -33,11 +33,11 @@ impl Plugin for EssPlugin {
 
         app.init_asset::<StyleSheet>();
         let extractor = app
-            .world
+            .world_mut()
             .get_resource_or_insert_with(PropertyExtractor::default)
             .clone();
         let validator = app
-            .world
+            .world_mut()
             .get_resource_or_insert_with(PropertyTransformer::default)
             .clone();
         app.register_asset_loader(EssLoader {
@@ -119,18 +119,17 @@ pub struct ParseCommand {
 
 impl Command for ParseCommand {
     fn apply(self, world: &mut bevy::prelude::World) {
-        let world = world.cell();
         let extractor = world.resource::<PropertyExtractor>().clone();
         let validator = world.resource::<PropertyTransformer>().clone();
         let parser = StyleSheetParser::new(validator, extractor);
         let rules = parser.parse(&self.source);
         let stylesheet = StyleSheet::new(rules);
-        let mut styles = world.resource_mut::<Styles>();
         let mut assets = world.resource_mut::<Assets<StyleSheet>>();
         let handle = assets.add(stylesheet);
         if self.default {
             world.resource_mut::<Defaults>().style_sheet = handle.clone();
         }
+        let mut styles = world.resource_mut::<Styles>();
         styles.insert(handle);
     }
 }
@@ -142,23 +141,21 @@ pub struct AddCommand {
 
 impl Command for AddCommand {
     fn apply(self, world: &mut bevy::prelude::World) {
-        let world = world.cell();
         let stylesheet = StyleSheet::new(self.rules);
-        let mut styles = world.resource_mut::<Styles>();
         let mut assets = world.resource_mut::<Assets<StyleSheet>>();
         let handle = assets.add(stylesheet);
         if self.default {
             world.resource_mut::<Defaults>().style_sheet = handle.clone();
         }
+        let mut styles = world.resource_mut::<Styles>();
         styles.insert(handle);
     }
 }
 
 impl Command for LoadCommand {
     fn apply(self, world: &mut bevy::prelude::World) {
-        let world = world.cell();
-        let mut styles = world.resource_mut::<Styles>();
         let handle = world.resource::<AssetServer>().load(&self.path);
+        let mut styles = world.resource_mut::<Styles>();
         styles.insert(handle);
     }
 }
@@ -286,8 +283,10 @@ fn process_styles_system(
                         }
                     }
                 }
-            },
-            _ => { info!("Unused") }
+            }
+            _ => {
+                info!("Unused")
+            }
         }
     }
     if styles_changed {

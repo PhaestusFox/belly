@@ -380,7 +380,7 @@ pub fn construct(ctx: &Context, root: &Node) -> syn::Result<TokenStream> {
                 for __slot in __slots_resource.keys() {
                     if !__defined_slots.contains(&__slot) {
                         warn!("Detected unused slot '{}', despawning it contnent.", __slot);
-                        use ::bevy::ecs::system::Command;
+                        use ::bevy::ecs::world::Command;
                         for __entity in __slots_resource.remove(__slot).unwrap() {
                             __world.entity_mut(__entity).despawn_recursive();
                         }

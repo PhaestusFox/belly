@@ -21,8 +21,8 @@ version = "0.4.0"
 
 
 [workspace.dependencies]
-bevy = { version = "0.13" }
-itertools = { version = "0.10.5" }
+bevy = { version = "0.14" }
+itertools = { version = "0.13.0" }
 
 tagstr = { path = "crates/tagstr" }
 belly_macro = { path = "crates/belly_macro" }
@@ -38,6 +38,7 @@ tagstr = { workspace = true }
 belly_macro = { workspace = true }
 belly_core = { workspace = true }
 belly_widgets = { workspace = true }
+bevy_editor_pls = "0.9"
 
 [[example]]
 name = "text_input"

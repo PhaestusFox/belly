@@ -8,7 +8,7 @@ use crate::{
     to,
 };
 use bevy::{
-    ecs::query::{QueryItem, QueryData},
+    ecs::query::{QueryData, QueryItem},
     prelude::*,
 };
 use std::any::TypeId;
@@ -150,7 +150,7 @@ where
     type Item = Eml;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(x) = self.previous.next() {
+        if let Some(x) = self.previous.next() {
             return Some((self.mapper)(x));
         }
         None

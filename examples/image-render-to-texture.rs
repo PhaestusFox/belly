@@ -80,10 +80,10 @@ fn setup_viewport(
 
     let image_handle = images.add(image);
     viewport.image_handle = Some(image_handle.clone());
-    
+
     let cube_handle = meshes.add(Mesh::from(Cuboid::new(4.0, 4.0, 4.0)));
     let cube_material_handle = materials.add(StandardMaterial {
-        base_color: Color::rgb(0.8, 0.7, 0.6),
+        base_color: Color::srgb(0.8, 0.7, 0.6),
         reflectance: 0.02,
         unlit: false,
         ..default()
@@ -101,7 +101,7 @@ fn setup_viewport(
             ..default()
         },
         FirstPassViewport,
-        viewport_pass_layer,
+        viewport_pass_layer.clone(),
     ));
 
     // Light

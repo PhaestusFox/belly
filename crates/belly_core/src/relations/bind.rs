@@ -4,7 +4,7 @@ use super::{
     props::{Prop, PropertyDescriptor},
     RelationsSystems,
 };
-use bevy::{ecs::system::Command, prelude::*, utils::HashMap};
+use bevy::{ecs::world::Command, prelude::*, utils::HashMap};
 use itertools::Itertools;
 use smallvec::SmallVec;
 use std::{
@@ -866,25 +866,25 @@ mod test {
         let mut app = App::new();
         app.add_plugins(RelationsPlugin);
 
-        let player = app.world.spawn_empty().id();
-        let bar = app.world.spawn_empty().id();
+        let player = app.world_mut().spawn_empty().id();
+        let bar = app.world_mut().spawn_empty().id();
 
-        app.world.entity_mut(player).insert(Health::default());
-        app.world.entity_mut(bar).insert(HealthBar::default());
+        app.world_mut().entity_mut(player).insert(Health::default());
+        app.world_mut().entity_mut(bar).insert(HealthBar::default());
         let bind = from!(player, Health: current) >> to!(bar, HealthBar: value);
-        bind.write(&mut app.world);
+        bind.write(&mut app.world_mut());
         app.update();
         app.update();
 
         let expected_health = 20.;
-        app.world
+        app.world_mut()
             .entity_mut(player.clone())
             .get_mut::<Health>()
             .unwrap()
             .current = expected_health;
         app.update();
         let current_health = app
-            .world
+            .world_mut()
             .entity(bar.clone())
             .get::<HealthBar>()
             .unwrap()
@@ -897,7 +897,7 @@ mod test {
         app.update();
         app.update();
         let current_health = app
-            .world
+            .world_mut()
             .entity(bar.clone())
             .get::<HealthBar>()
             .unwrap()
@@ -908,7 +908,7 @@ mod test {
         );
 
         let expected_health = 30.;
-        app.world
+        app.world_mut()
             .entity_mut(player.clone())
             .get_mut::<Health>()
             .unwrap()
@@ -917,7 +917,7 @@ mod test {
         app.update();
         app.update();
         let current_health = app
-            .world
+            .world_mut()
             .entity(bar.clone())
             .get::<HealthBar>()
             .unwrap()
@@ -933,19 +933,19 @@ mod test {
         let mut app = App::new();
         app.add_plugins(RelationsPlugin);
 
-        let player = app.world.spawn_empty().id();
-        let bar = app.world.spawn_empty().id();
+        let player = app.world_mut().spawn_empty().id();
+        let bar = app.world_mut().spawn_empty().id();
 
-        app.world.entity_mut(player).insert(Health::default());
-        app.world.entity_mut(bar).insert(HealthBar::default());
+        app.world_mut().entity_mut(player).insert(Health::default());
+        app.world_mut().entity_mut(bar).insert(HealthBar::default());
         let bind = from!(player, Health: current) >> to!(bar, HealthBar: value);
-        bind.write(&mut app.world);
+        bind.write(&mut app.world_mut());
         let bind = from!(player, Health: max) >> to!(player, Health: current);
-        bind.write(&mut app.world);
+        bind.write(&mut app.world_mut());
         app.update();
 
         let expected_health = 20.;
-        app.world
+        app.world_mut()
             .entity_mut(player.clone())
             .get_mut::<Health>()
             .unwrap()
@@ -953,7 +953,7 @@ mod test {
 
         app.update();
         let visible_health = app
-            .world
+            .world_mut()
             .entity(bar.clone())
             .get::<HealthBar>()
             .unwrap()

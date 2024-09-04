@@ -18,15 +18,15 @@ impl Plugin for EmlPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.init_asset::<EmlAsset>();
         let extractor = app
-            .world
+            .world_mut()
             .get_resource_or_insert_with(PropertyExtractor::default)
             .clone();
         let validator = app
-            .world
+            .world_mut()
             .get_resource_or_insert_with(PropertyTransformer::default)
             .clone();
         let registry = app
-            .world
+            .world_mut()
             .get_resource_or_insert_with(WidgetRegistry::default)
             .clone();
 

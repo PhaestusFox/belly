@@ -21,11 +21,7 @@ use crate::{
 };
 use bevy::ecs::query::{QueryData, QueryFilter};
 use bevy::ui::UiSystem;
-use bevy::{
-    ecs::query::QueryItem,
-    prelude::*,
-    utils::HashMap,
-};
+use bevy::{ecs::query::QueryItem, prelude::*, utils::HashMap};
 use itertools::Itertools;
 
 pub struct PropertyPlugin;
@@ -444,7 +440,7 @@ pub trait RegisterProperty {
 
 impl RegisterProperty for bevy::prelude::App {
     fn register_property<T: Property + 'static>(&mut self) -> &mut Self {
-        self.world
+        self.world_mut()
             .get_resource_or_insert_with(PropertyTransformer::default)
             .0
             .write()
@@ -463,7 +459,7 @@ impl RegisterProperty for bevy::prelude::App {
     }
 
     fn register_compound_property<T: CompoundProperty + 'static>(&mut self) -> &mut Self {
-        self.world
+        self.world_mut()
             .get_resource_or_insert_with(PropertyExtractor::default)
             .0
             .write()

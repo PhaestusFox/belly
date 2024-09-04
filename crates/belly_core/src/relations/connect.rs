@@ -2,7 +2,8 @@ use crate::{element::Elements, relations::RelationsSystems};
 use bevy::{
     ecs::{
         query::{QueryData, QueryItem, WorldQuery},
-        system::{Command, EntityCommands},
+        system::EntityCommands,
+        world::Command,
     },
     prelude::*,
     utils::HashMap,

@@ -4,7 +4,7 @@ use smallvec::{smallvec, SmallVec};
 use std::ops::Neg;
 use tagstr::Tag;
 
-#[derive(Copy, Clone, PartialEq, Eq, Ord, Default, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Default, Debug)]
 pub struct SelectorWeight(pub(crate) i32, pub(crate) i32);
 
 impl SelectorWeight {
@@ -13,6 +13,16 @@ impl SelectorWeight {
     }
     pub fn zero() -> SelectorWeight {
         SelectorWeight(0, 0)
+    }
+}
+impl Ord for SelectorWeight {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let res = self.0.cmp(&other.0);
+        if res == std::cmp::Ordering::Equal {
+            self.1.cmp(&other.1)
+        } else {
+            res
+        }
     }
 }
 

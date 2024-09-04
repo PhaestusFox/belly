@@ -1,7 +1,8 @@
 use bevy::ecs::component::Tick;
 use bevy::ecs::query::QueryData;
-use bevy::ecs::system::{Command, CommandQueue, SystemMeta, SystemParam};
+use bevy::ecs::system::{SystemMeta, SystemParam};
 use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
+use bevy::ecs::world::{Command, CommandQueue};
 use bevy::ui::UiSystem;
 use bevy::utils::{HashMap, HashSet};
 use smallvec::SmallVec;
