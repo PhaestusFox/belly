@@ -32,7 +32,6 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(BellyPlugin)
-        .add_plugins(bevy_editor_pls::EditorPlugin::default())
         .add_systems(Startup, setup)
         .run();
 }
