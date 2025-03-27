@@ -5,8 +5,8 @@
 /// supported for now for drawing edges, `repeat` & `round` coming soon.
 use bevy::{
     prelude::*,
-    render::{Extract, RenderApp},
-    ui::{ExtractedUiNode, ExtractedUiNodes, FocusPolicy, RenderUiSystem, UiStack},
+    render::{Extract, RenderApp, sync_world::MainEntity},
+    ui::{ExtractedUiNode, ExtractedUiNodes, ExtractedUiItem, FocusPolicy, RenderUiSystem, UiStack, ResolvedBorderRadius},
 };
 
 /// `Stylebox` plugin for `bevy` engine. Dont forget to register it:
@@ -42,10 +42,6 @@ impl Plugin for StyleboxPlugin {
 /// The bundle with almost the same content a `NodeBundle`,
 /// but `Stylebox` component is used instead of `BackgroundColor`.
 pub struct StyleboxBundle {
-    /// Describes the size of the node
-    pub node: Node,
-    /// Describes the style including flexbox settings
-    pub style: Style,
     /// The stylebox of the node
     pub stylebox: Stylebox,
     /// Whether this node should block interaction with lower nodes
@@ -61,6 +57,7 @@ pub struct StyleboxBundle {
 }
 
 #[derive(Component, Clone, Debug)]
+#[require(Node)]
 /// Component used to specify how to fill the element with sliced by 9 parts region of image.
 pub struct Stylebox {
     /// holds the handle to the image to be used as a stylebox
@@ -203,72 +200,71 @@ pub fn compute_stylebox_configuration(
                         (size_y - region_bottom).max(region_top),
                     ),
                 };
-                let size = region.size();
-                let (size_x, size_y) = (size.x as f32, size.y as f32);
+
+                let region_size = region.size();
+                let (region_width, region_height) = (region_size.x, region_size.y);
 
                 let slice_left = match stylebox.slice.left {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / size_x,
+                    Val::Px(px) => px / region_width,
                     _ => 0.5,
                 };
                 let slice_right = match stylebox.slice.right {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / size_x,
+                    Val::Px(px) => px / region_width,
                     _ => 0.5,
                 };
                 let slice_top = match stylebox.slice.top {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / size_y,
+                    Val::Px(px) => px / region_height,
                     _ => 0.5,
                 };
                 let slice_bottom = match stylebox.slice.bottom {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / size_y,
+                    Val::Px(px) => px / region_height,
                     _ => 0.5,
                 };
-                let slice = UiRectF32::new(slice_left, slice_right, slice_top, slice_bottom);
 
                 let width_left = match stylebox.width.left {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / (size_x * slice.left),
+                    Val::Px(px) => px / (region_width * slice_left),
                     _ => 1.0,
                 };
                 let width_right = match stylebox.width.right {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / (size_x * slice.right),
+                    Val::Px(px) => px / (region_width * slice_right),
                     _ => 1.0,
                 };
                 let width_top = match stylebox.width.top {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / (size_y * slice.top),
+                    Val::Px(px) => px / (region_height * slice_top),
                     _ => 1.0,
                 };
                 let width_bottom = match stylebox.width.bottom {
                     Val::Percent(percent) => percent * 0.01,
-                    Val::Px(px) => px / (size_y * slice.bottom),
+                    Val::Px(px) => px / (region_height * slice_bottom),
                     _ => 1.0,
                 };
-                let width = UiRectF32::new(width_left, width_right, width_top, width_bottom);
 
+                let computed_stylebox = ComputedStylebox {
+                    slice: UiRectF32::new(slice_left, slice_right, slice_top, slice_bottom),
+                    width: UiRectF32::new(width_left, width_right, width_top, width_bottom),
+                    region,
+                };
                 if let Some(mut computed) = computed {
-                    computed.region = region;
-                    computed.slice = slice;
-                    computed.width = width;
+                    *computed = computed_stylebox;
                 } else {
                     commands
                         .entity(entity)
                         .insert(StyleboxSlices::default())
-                        .insert(ComputedStylebox {
-                            region,
-                            slice,
-                            width,
-                        });
+                        .insert(computed_stylebox);
                 }
             }
         }
     }
 }
 
+#[derive(Debug, Clone)]
 struct StyleboxSlice {
     transform: Mat4,
     region: Rect,
@@ -279,11 +275,11 @@ struct StyleboxSlice {
 pub struct StyleboxSlices {
     items: Vec<StyleboxSlice>,
 }
-/// Calculates transforms for each slice based on `Node.size()` and `ComputedStylebox`
+/// Calculates transforms for each slice based on `ComputedNode.size()` and `ComputedStylebox`
 pub fn compute_stylebox_slices(
     mut query: Query<
-        (&mut StyleboxSlices, &Node, &ComputedStylebox),
-        Or<(Changed<Node>, Changed<ComputedStylebox>)>,
+        (&mut StyleboxSlices, &ComputedNode, &ComputedStylebox),
+        Or<(Changed<ComputedNode>, Changed<ComputedStylebox>)>,
     >,
 ) {
     for (mut transforms, uinode, stylebox) in query.iter_mut() {
@@ -314,81 +310,68 @@ pub fn compute_stylebox_slices(
         let ui_width = &[w0, w1, w2];
         let ui_height = &[h0, h1, h2];
 
-        // make sure there is a minimum gap betwenn 0, left, right and 1
-        let (left, right) = normalize_axis(left, right);
-        let (top, bot) = normalize_axis(top, bot);
+        let (tx0, tx1) = normalize_axis(left, right);
+        let (ty0, ty1) = normalize_axis(top, bot);
+        let tex_x = &[rpos.x, rpos.x + tx0 * rsize.x, rpos.x + tx1 * rsize.x, rpos.x + rsize.x];
+        let tex_y = &[rpos.y, rpos.y + ty0 * rsize.y, rpos.y + ty1 * rsize.y, rpos.y + rsize.y];
+        let tex_width = &[tx0 * rsize.x, (tx1 - tx0) * rsize.x, (1. - tx1) * rsize.x];
+        let tex_height = &[ty0 * rsize.y, (ty1 - ty0) * rsize.y, (1. - ty1) * rsize.y];
 
-        // compute sizes in image space
-        let img_x = &[
-            rpos.x,
-            rpos.x + left * rsize.x,
-            rpos.x + (1. - right) * rsize.x,
-        ];
-        let img_y = &[
-            rpos.y,
-            rpos.y + top * rsize.y,
-            rpos.y + (1. - bot) * rsize.y,
-        ];
-        let img_width = &[
-            left * rsize.x,
-            (1. - right - left) * rsize.x,
-            right * rsize.x,
-        ];
-        let img_height = &[top * rsize.y, (1. - bot - top) * rsize.y, bot * rsize.y];
-
-        for row in 0..3 {
-            for col in 0..3 {
-                if ui_width[row] < EPSILON || ui_height[col] < EPSILON {
-                    continue;
-                }
-                let uirect = Rect {
-                    min: Vec2::new(ui_x[row], ui_y[col]),
-                    max: Vec2::new(ui_x[row] + ui_width[row], ui_y[col] + ui_height[col]),
+        for y in 0..3 {
+            for x in 0..3 {
+                let scale_x = if tex_width[x] < EPSILON {
+                    0.
+                } else {
+                    ui_width[x] / tex_width[x]
+                };
+                let scale_y = if tex_height[y] < EPSILON {
+                    0.
+                } else {
+                    ui_height[y] / tex_height[y]
                 };
 
-                let imgrect = Rect {
-                    min: Vec2::new(img_x[row], img_y[col]),
-                    max: Vec2::new(img_x[row] + img_width[row], img_y[col] + img_height[col]),
-                };
+                let transform = Mat4::from_scale_rotation_translation(
+                    Vec3::new(scale_x, scale_y, 1.),
+                    Quat::IDENTITY,
+                    Vec3::new(
+                        ui_x[x] - tex_x[x] * scale_x,
+                        ui_y[y] - tex_y[y] * scale_y,
+                        0.,
+                    ),
+                );
 
-                let center = 0.5 * (uirect.min + uirect.max);
-                let offset = center - size * 0.5;
-                let scale = uirect.size() / imgrect.size();
-                let mut tr = Mat4::IDENTITY;
-                tr *= Mat4::from_translation(offset.extend(0.));
-                tr *= Mat4::from_scale(scale.extend(1.));
-                transforms.items.push(StyleboxSlice {
-                    transform: tr,
-                    region: imgrect,
-                });
+                let region = Rect {
+                    min: Vec2::new(tex_x[x], tex_y[y]),
+                    max: Vec2::new(tex_x[x + 1], tex_y[y + 1]),
+                };
+                transforms.items.push(StyleboxSlice { transform, region });
             }
         }
     }
 }
 
 fn normalize_axis(left: f32, right: f32) -> (f32, f32) {
-    let mut x0 = left;
-    let mut x1 = 1. - right;
-
-    if x0 > x1 {
-        x0 = x1;
+    if left + right > ONE_MINUS_EPSILON {
+        // when left + right > 1, we need to scale them down to fit in 0..1 range
+        // we want to keep the ratio between left and right
+        // and we want to make sure that left + right = 1 - EPSILON
+        let sum = left + right;
+        let scale = ONE_MINUS_EPSILON / sum;
+        let left = left * scale;
+        let right = right * scale;
+        let t0 = left;
+        let t1 = ONE_MINUS_EPSILON - right;
+        (t0, t1)
+    } else {
+        // when left + right <= 1, we can use them as is
+        // we want to make sure that left + middle + right = 1
+        // and we want to keep the ratio between left and right
+        // and we want to make sure that middle is at least EPSILON
+        let middle = 1. - left - right;
+        let t0 = left;
+        let t1 = left + middle;
+        (t0, t1)
     }
-
-    x0 = x0.max(EPSILON);
-    x1 = x1.min(ONE_MINUS_EPSILON);
-
-    if x0 >= ONE_MINUS_TWO_EPSILONS && x1 >= ONE_MINUS_TWO_EPSILONS {
-        x0 = ONE_MINUS_TWO_EPSILONS;
-        x1 = ONE_MINUS_EPSILON;
-    } else if x0 <= TWO_EPSILONS && x1 <= TWO_EPSILONS {
-        x0 = EPSILON;
-        x1 = TWO_EPSILONS;
-    } else if (x1 - x0) < EPSILON && x0 >= 0.5 {
-        x1 += EPSILON
-    } else if (x1 - x0) < EPSILON && x0 < 0.5 {
-        x0 -= EPSILON
-    }
-    (x0, 1. - x1)
 }
 
 /// Extracts stylebox vertices into render pipeline based on `Stylebox.texture`,
@@ -399,7 +382,7 @@ pub fn extract_stylebox(
     images: Extract<Res<Assets<Image>>>,
     uinode_query: Extract<
         Query<(
-            &Node,
+            &ComputedNode,
             &GlobalTransform,
             &Stylebox,
             &StyleboxSlices,
@@ -427,8 +410,6 @@ pub fn extract_stylebox(
             continue;
         }
 
-        // image.as
-
         let img = images.get(&image).unwrap();
         let tr = transform.compute_matrix();
         let img_size = img.size();
@@ -438,19 +419,22 @@ pub fn extract_stylebox(
             extracted_uinodes.uinodes.insert(
                 *entity,
                 ExtractedUiNode {
-                    border_radius: [0.; 4], // todo get this from somewhere
-                    border: [0.; 4],        // todo get this from somewhere
-                    node_type: bevy::ui::NodeType::Rect,
-                    transform: tr * patch.transform,
+                    stack_index: stack_index as u32,
                     color: stylebox.modulate.to_linear(),
                     rect: patch.region,
                     image: image.id(),
-                    atlas_size: Some(img_size),
                     clip: clip.map(|clip| clip.clip),
-                    stack_index: stack_index as u32,
-                    flip_x: false,
-                    flip_y: false,
                     camera_entity: Entity::PLACEHOLDER,
+                    item: ExtractedUiItem::Node {
+                        border_radius: ResolvedBorderRadius::default(),
+                        border: BorderRect::default(),
+                        node_type: bevy::ui::NodeType::Rect,
+                        transform: tr * patch.transform,
+                        flip_x: false,
+                        flip_y: false,
+                        atlas_scaling: Some(img_size),
+                    },
+                    main_entity: MainEntity::from(*entity),
                 },
             );
 
