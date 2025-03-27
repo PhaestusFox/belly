@@ -189,7 +189,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
 
     pub fn update_element<F: FnOnce(&mut Element) + Send + Sync + 'static>(&mut self, update: F) {
         let entity = self.entity();
-        self.commands.add(move |world: &mut World| {
+        self.commands.queue(move |world: &mut World| {
             let mut new_id;
             let mut old_id = None;
             if let Some(mut element) = world.entity_mut(entity).get_mut::<Element>() {
@@ -442,7 +442,7 @@ pub trait Widget {
             }
         });
         let entity = ctx.entity();
-        ctx.commands.add(move |world: &mut World| {
+        ctx.commands.queue(move |world: &mut World| {
             world
                 .resource_mut::<Events<RequestReadyEvent>>()
                 .send(RequestReadyEvent(entity));
@@ -555,10 +555,11 @@ impl Eml {
         move |world: &mut World| {
             let child = (self.builder)(world, None);
             world.entity_mut(parent).with_children(|parent| {
-                parent.spawn_empty().insert(child);
+                parent.spawn_empty().add_child(child);
             });
         }
     }
+
     pub fn build(self, world: &mut World) -> Entity {
         (self.builder)(world, None)
     }

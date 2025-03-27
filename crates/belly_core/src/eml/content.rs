@@ -24,7 +24,7 @@ pub trait UpdateContent: Sized {
 
 impl IntoContent for String {
     fn into_content(self, _parent: Entity, world: &mut World) -> Vec<Entity> {
-        let text = Text::from_section(self, Default::default());
+        let text = Text::new(self);
         let entity = world
             .spawn(TextElementBundle {
                 text,

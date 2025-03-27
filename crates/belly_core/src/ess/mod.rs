@@ -11,7 +11,7 @@ use bevy::{
     ecs::world::Command,
     prelude::*,
     reflect::TypePath,
-    utils::{hashbrown::hash_map::Keys, BoxedFuture, HashMap},
+    utils::{hashbrown::hash_map::Keys, HashMap},
 };
 pub use property::*;
 pub use selector::*;
