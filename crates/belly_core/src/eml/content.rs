@@ -27,7 +27,7 @@ impl IntoContent for String {
         let text = Text::from_section(self, Default::default());
         let entity = world
             .spawn(TextElementBundle {
-                text: TextBundle { text, ..default() },
+                text,
                 ..default()
             })
             .id();

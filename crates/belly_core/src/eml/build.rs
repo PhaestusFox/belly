@@ -123,7 +123,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
     }
 
     pub fn add<C: Command>(&mut self, command: C) {
-        self.commands.add(command)
+        self.commands.queue(command)
     }
 
     pub fn insert<'a>(&'a mut self, bundle: impl Bundle) -> EntityCommands<'a> {
@@ -133,7 +133,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
     }
 
     pub fn render(&mut self, elements: Eml) {
-        self.commands.add(elements.render_to(self.data.entity));
+        self.commands.queue(elements.render_to(self.data.entity));
     }
 
     pub fn entity(&self) -> Entity {
@@ -554,7 +554,9 @@ impl Eml {
     pub fn add_to(self, parent: Entity) -> impl Command {
         move |world: &mut World| {
             let child = (self.builder)(world, None);
-            world.entity_mut(parent).push_children(&[child]);
+            world.entity_mut(parent).with_children(|parent| {
+                parent.spawn_empty().insert(child);
+            });
         }
     }
     pub fn build(self, world: &mut World) -> Entity {

@@ -5,7 +5,7 @@ use crate::ess::{PropertyExtractor, PropertyTransformer};
 use bevy::asset::io::Reader;
 use bevy::asset::AsyncReadExt;
 use bevy::reflect::TypePath;
-use bevy::utils::BoxedFuture;
+// BoxedFuture is no longer needed with async fn
 use bevy::{asset::AssetLoader, prelude::*, utils::HashMap};
 use std::sync::Arc;
 use tagstr::*;
@@ -124,11 +124,11 @@ impl AssetLoader for EmlLoader {
 
     fn load(
         &self,
-        reader: &mut Reader,
+        reader: &mut dyn Reader,
         _: &Self::Settings,
         load_context: &mut bevy::asset::LoadContext,
-    ) -> BoxedFuture<'_, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
+    ) -> impl std::future::Future<Output = Result<Self::Asset, Self::Error>> + Send {
+        async move {
             let mut source = String::new();
             reader.read_to_string(&mut source).await.unwrap();
 
@@ -148,7 +148,7 @@ impl AssetLoader for EmlLoader {
                     // .context(format!("Unable to parse {}", path.to_str().unwrap())))
                 }
             }
-        })
+        }
     }
 }
 

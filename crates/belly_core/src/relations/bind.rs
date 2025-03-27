@@ -854,11 +854,11 @@ mod test {
         let _bind = from!(e, HealthBar: output) >> btn_bind_mode_to(e);
 
         // resources
-        let _bind = from!(Time: elapsed_seconds()) >> to!(e, Health: current);
-        let _bind = to!(e, Health: current) << from!(Time: elapsed_seconds());
-        let _bind = from!(Time: elapsed_seconds() | fmt.val("{val}")) >> to!(e, HealthBar: output);
+        let _bind = from!(Time: elapsed_secs()) >> to!(e, Health: current);
+        let _bind = to!(e, Health: current) << from!(Time: elapsed_secs());
+        let _bind = from!(Time: elapsed_secs() | fmt.val("{val}")) >> to!(e, HealthBar: output);
         let _bind =
-            to!(e, HealthBar: output) << from!(Time: elapsed_seconds() | fmt.val("{val:0.3}"));
+            to!(e, HealthBar: output) << from!(Time: elapsed_secs() | fmt.val("{val:0.3}"));
     }
 
     #[test]

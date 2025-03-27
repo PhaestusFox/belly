@@ -77,13 +77,13 @@ impl AssetLoader for EssLoader {
         &["css", "ess"]
     }
 
-    fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader,
-        _: &'a Self::Settings,
-        _: &'a mut bevy::asset::LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
+    fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _: &Self::Settings,
+        _: &mut bevy::asset::LoadContext,
+    ) -> impl std::future::Future<Output = Result<Self::Asset, Self::Error>> + Send {
+        async move {
             let mut source = String::new();
             reader.read_to_string(&mut source).await.unwrap();
             let parser = StyleSheetParser::new(self.validator.clone(), self.extractor.clone());
@@ -94,7 +94,7 @@ impl AssetLoader for EssLoader {
             }
             // load_context.set_default_asset(LoadedAsset::new(stylesheet));
             Ok(stylesheet)
-        })
+        }
     }
 }
 

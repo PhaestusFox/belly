@@ -47,11 +47,7 @@ prop_to_enum! { PositionType,
     "relative" => Relative,
 }
 
-prop_to_enum! { Direction,
-    "inherit" => Inherit,
-    "ltr" => LeftToRight,
-    "rtl" => RightToLeft,
-}
+// Direction enum has been removed in Bevy 0.15.3
 
 prop_to_enum! { FlexDirection,
     "row" => Row,
