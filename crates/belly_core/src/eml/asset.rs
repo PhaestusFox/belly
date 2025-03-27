@@ -61,10 +61,7 @@ fn walk(node: &EmlNode, world: &mut World, parent: Option<Entity>) -> Option<Ent
     match node {
         EmlNode::Text(text) => {
             let entity = world
-                .spawn(TextBundle {
-                    text: Text::from_section(text, Default::default()),
-                    ..default()
-                })
+                .spawn(Text::new(text))
                 .insert(Element::inline())
                 .id();
             Some(entity)
