@@ -93,7 +93,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     // |
                     ctx.commands().entity(*e).despawn_recursive(); // |
                 })); // |
-                     // log button name when it hovered                          // |
+            // log button name when it hovered                          // |
             ctx.connect() // |
                 .entity(btn) // |
                 .on(button_hovered) // |
@@ -127,8 +127,8 @@ fn emit_button_events(
 ) {
     for (entity, interaction) in interactions.iter() {
         match interaction {
-            Interaction::Pressed => { events.send(ButtonEvent::Press(entity)); },
-            Interaction::Hovered => { events.send(ButtonEvent::Hover(entity)); },
+            Interaction::Pressed => { events.send(ButtonEvent::Press(entity)); }
+            Interaction::Hovered => { events.send(ButtonEvent::Hover(entity)); }
             _ => {}
         }
     }
@@ -136,7 +136,7 @@ fn emit_button_events(
 
 fn update_counter(mut counters: Query<(&Counter, &mut Text)>) {
     for (counter, mut text) in counters.iter_mut() {
-        text.sections[0].value = format!("{}", counter.0);
+        text.0 = format!("{}", counter.0);
     }
 }
 
@@ -148,56 +148,49 @@ impl<'w, 's> SuperCommands for Commands<'w, 's> {
     fn add_root(&mut self, asset_server: &Res<AssetServer>) -> (Entity, Entity) {
         let mut root = None;
         let mut counter = None;
-        self.spawn(NodeBundle {
-            node: Node {
-                width: Val::Percent(100.),
-                height: Val::Percent(100.),
-                // flex_wrap: FlexWrap::Wrap,
-                flex_direction: FlexDirection::Column,
-                ..default()
-            },
+        self.spawn(Node {
+            width: Val::Percent(100.),
+            height: Val::Percent(100.),
+            flex_direction: FlexDirection::Column,
             ..default()
         })
-        .with_children(|parent| {
-            parent
-                .spawn(NodeBundle {
-                    node: Node {
+            .with_children(|parent| {
+                parent
+                    .spawn(NodeBundle {
+                        node: Node {
+                            width: Val::Percent(100.),
+                            height: Val::Px(80.),
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .with_children(|parent| {
+                        let font = asset_server.load("FiraMono-Medium.ttf");
+                        parent.spawn((
+                            Text::new("Press [space] to spawn button, click button to remove it. Buttons removed: "),
+                            TextFont::from_font(font.clone()).with_font_size(28.),
+                            TextColor(Color::BLACK)
+                        ));
+                        let counter_node = parent
+                            .spawn((
+                                Text::new("0"),
+                                TextFont::from_font(font.clone()).with_font_size(28.),
+                                TextColor(Color::BLACK)
+                            ))
+                            .insert(Counter::default())
+                            .id();
+                        counter = Some(counter_node);
+                    });
+                let root_node = parent.spawn(
+                    Node {
                         width: Val::Percent(100.),
-                        height: Val::Px(80.),
+                        height: Val::Percent(100.),
+                        flex_wrap: FlexWrap::Wrap,
                         ..default()
                     },
-                    ..default()
-                })
-                .with_children(|parent| {
-                    let font = asset_server.load("FiraMono-Medium.ttf");
-                    parent.spawn(TextBundle::from_section(
-                    "Press [space] to spawn button, click button to remove it. Buttons removed: ",
-                    TextStyle { font: font.clone(), font_size: 28., color: Color::BLACK, }
-                ));
-                    let counter_node = parent
-                        .spawn(TextBundle::from_section(
-                            "0",
-                            TextStyle {
-                                font: font.clone(),
-                                font_size: 28.,
-                                color: Color::BLACK,
-                            },
-                        ))
-                        .insert(Counter::default())
-                        .id();
-                    counter = Some(counter_node);
-                });
-            let root_node = parent.spawn(NodeBundle {
-                node: Node {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
-                    flex_wrap: FlexWrap::Wrap,
-                    ..default()
-                },
-                ..default()
+                );
+                root = Some(root_node.id());
             });
-            root = Some(root_node.id());
-        });
         (root.unwrap(), counter.unwrap())
     }
 }
@@ -215,32 +208,25 @@ impl<'a, 'w, 's, E: Event> SuperContext for EventContext<'a, 'w, 's, E> {
         self.commands()
             .entity(btnid)
             .insert(Name::new(name.to_string()))
-            .insert(ButtonBundle {
-                background_color: Color::WHITE.into(),
-                node: Node {
+            .insert((
+                Button::default(),
+                Node {
                     margin: UiRect::all(Val::Px(20.)),
                     width: Val::Auto,
                     height: Val::Px(80.),
                     ..default()
                 },
-                ..default()
-            })
+            ))
             .with_children(|btn| {
-                btn.spawn(TextBundle {
-                    text: Text::from_section(
-                        name,
-                        TextStyle {
-                            font,
-                            font_size: 28.,
-                            color: Color::BLACK,
-                        },
-                    ),
-                    node: Node {
+                btn.spawn((
+                    Text::new(name),
+                    TextFont::from_font(font.clone()).with_font_size(28.),
+                    TextColor(Color::BLACK),
+                    Node {
                         margin: UiRect::all(Val::Px(25.)),
                         ..default()
-                    },
-                    ..default()
-                });
+                    }
+                ));
             });
         btnid
     }

@@ -40,7 +40,7 @@ fn setup(mut commands: Commands) {
     let that = commands.spawn_empty().id();
     let colorbox = commands.spawn_empty().insert(ColorBox::Red).id();
     let grow = commands.spawn_empty().id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body>
             <div>
                 <button on:press=|ctx| info!("I was pressed at {}", ctx.time().elapsed_seconds())>
@@ -93,7 +93,7 @@ fn setup(mut commands: Commands) {
                 </button>
             </div>
             <div>
-                <button {grow} s:width=managed() on:press=run!(for grow |s: &mut Style| {
+                <button {grow} s:width=managed() on:press=run!(for grow |s: &mut Node| {
                     s.width = Val::Px(if let Val::Px(width) = s.width {
                         width + 5.
                     } else {
@@ -105,7 +105,7 @@ fn setup(mut commands: Commands) {
             </div>
         </body>
     });
-    commands.add(StyleSheet::parse(
+    commands.queue(StyleSheet::parse(
         r#"
         body {
             flex-direction: column;
