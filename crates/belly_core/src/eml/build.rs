@@ -554,9 +554,7 @@ impl Eml {
     pub fn add_to(self, parent: Entity) -> impl Command {
         move |world: &mut World| {
             let child = (self.builder)(world, None);
-            world.entity_mut(parent).with_children(|parent| {
-                parent.spawn_empty().add_child(child);
-            });
+            world.entity_mut(parent).add_child(child);
         }
     }
 

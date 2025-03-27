@@ -260,29 +260,29 @@ impl TryFrom<Variant> for LayoutMode {
 }
 
 pub fn update_range_representation(
-    ranges: Query<&Range, Or<(Changed<Range>, Changed<Node>)>>,
-    computed_nodes: Query<&ComputedNode>,
-    mut nodes: Query<&mut Node>
+    ranges: Query<&Range, Changed<Range>>,
+    mut nodes: Query<(&mut Node, &ComputedNode)>
 ) {
     for range in ranges.iter()
     // .filter(|s| !s.progress_updating_locked())
     {
         let low_span = range.low_span;
         let high_span = range.high_span;
-        let Ok(computed_low) = computed_nodes.get(low_span) else {
+        let Ok((_, low_computed)) = nodes.get(low_span) else {
             continue;
         };
-        let Ok(computed_high) = computed_nodes.get(high_span) else {
+        let Ok((_, high_computed)) = nodes.get(high_span) else {
             continue;
         };
-        let Ok(mut node) = nodes.get_mut(low_span) else {
-            continue;
-        };
-        let size = computed_low.size() + computed_high.size();
+        let size = low_computed.size() + high_computed.size();
         let offset = size * range.value.relative();
+        
+        let Ok((mut low, _)) = nodes.get_mut(low_span) else {
+            continue;
+        };
         match range.mode {
-            LayoutMode::Horizontal => node.min_width = Val::Px(offset.x),
-            LayoutMode::Vertical => node.min_height = Val::Px(offset.y),
+            LayoutMode::Horizontal => low.min_width = Val::Px(offset.x),
+            LayoutMode::Vertical => low.min_height = Val::Px(offset.y),
         }
     }
 }
