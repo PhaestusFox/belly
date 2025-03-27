@@ -122,12 +122,12 @@ impl AssetLoader for EmlLoader {
         &["eml"]
     }
 
-    fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader,
-        _: &'a Self::Settings,
-        load_context: &'a mut bevy::asset::LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+    fn load(
+        &self,
+        reader: &mut Reader,
+        _: &Self::Settings,
+        load_context: &mut bevy::asset::LoadContext,
+    ) -> BoxedFuture<'_, Result<Self::Asset, Self::Error>> {
         Box::pin(async move {
             let mut source = String::new();
             reader.read_to_string(&mut source).await.unwrap();
@@ -166,7 +166,7 @@ pub fn update_eml_scene(
 
             for (entity, _, _) in scenes.iter().filter(|(_, s, _)| s.asset == handle) {
                 let asset = asset.clone();
-                commands.add(move |world: &mut World| {
+                commands.queue(move |world: &mut World| {
                     asset.write(world, entity);
                 });
             }
@@ -181,7 +181,7 @@ pub fn update_eml_scene(
                     }
                 }
                 let asset = asset.clone();
-                commands.add(move |world: &mut World| {
+                commands.queue(move |world: &mut World| {
                     asset.write(world, entity);
                 });
             }
