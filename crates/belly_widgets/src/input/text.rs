@@ -1,8 +1,9 @@
 use crate::common::*;
-use ab_glyph::ScaleFont;
+use ab_glyph::{FontRef, ScaleFont};
 use belly_core::{build::*, input};
 use belly_macro::*;
 use bevy::{input::keyboard::KeyboardInput, prelude::*};
+use ab_glyph::Font as AbFont;
 
 use crate::common::Label;
 
@@ -203,9 +204,11 @@ pub struct TextInputCursor {
 }
 
 fn get_char_advance(ch: char, font: &Font, font_size: f32) -> f32 {
-    let font = ab_glyph::Font::as_scaled(&font, font_size);
-    let glyph = font.glyph_id(ch);
-    font.h_advance(glyph)
+    if let Ok(font) = FontRef::try_from_slice(&font.data) {
+        let font = font.as_scaled(font_size);
+        let glyph = font.glyph_id(ch);
+        font.h_advance(glyph)
+    } else { 0.0 }
 }
 
 fn process_keyboard_input(
@@ -230,7 +233,7 @@ fn process_keyboard_input(
         return;
     }
 
-    let Ok((text, text_font)) = texts.get(input.text) else {
+    let Ok((_text, text_font)) = texts.get(input.text) else {
         return;
     };
 
@@ -313,11 +316,9 @@ fn process_keyboard_input(
                     index = selected.min;
                     selected.stop();
                     input.value = chars.iter().collect();
-                } else {
-                    if chars.len() > index {
-                        chars.remove(index);
-                        input.value = chars.iter().collect();
-                    }
+                } else if chars.len() > index {
+                    chars.remove(index);
+                    input.value = chars.iter().collect();
                 }
             }
             _ => (),
@@ -342,10 +343,10 @@ fn process_keyboard_input(
     if let Ok(mut cursor) = cursors.get_mut(input.cursor) {
         cursor.state = 1.;
     }
-    let Ok(node) = nodes.get(input.container) else {
+    let Ok((_node, computed_node)) = nodes.get(input.container) else {
         return;
     };
-    let container_width = node.size().x;
+    let container_width = computed_node.size().x;
     let mut position_from_start = 0.;
     let mut selection_from = 0.;
     let mut selection_to = 0.;
@@ -446,7 +447,7 @@ fn process_cursor_focus(
 fn process_mouse(
     mut events: EventReader<PointerInput>,
     mut inputs: Query<(Entity, &mut TextInput, &mut Element)>,
-    texts: Query<&Text>,
+    texts: Query<(&Text, &TextFont)>,
     nodes: Query<(&GlobalTransform, &Node, &ComputedNode)>,
     fonts: Res<Assets<Font>>,
     keyboard: Res<ButtonInput<KeyCode>>,
@@ -475,13 +476,13 @@ fn process_mouse(
             } else {
                 0.
             };
-            let Ok(text) = texts.get(input.text) else {
+            let Ok((_text, text_font)) = texts.get(input.text) else {
                 continue;
             };
-            let Some(font) = fonts.get(&text.sections[0].style.font) else {
+            let Some(font) = fonts.get(&text_font.font) else {
                 continue;
             };
-            let font_size = text.sections[0].style.font_size;
+            let font_size = text_font.font_size;
             let pos = (evt.pos - tr.translation().truncate() + computed_node.size() * 0.5).x;
             let mut index = 0;
             let mut idx_found = false;
@@ -539,17 +540,17 @@ fn process_mouse(
     }
 }
 
-fn blink_cursor(time: Res<Time>, mut cursor: Query<(&mut TextInputCursor, &mut Style)>) {
-    for (mut cursor, mut style) in cursor.iter_mut() {
-        cursor.state -= time.delta_seconds();
+fn blink_cursor(time: Res<Time>, mut cursor: Query<(&mut TextInputCursor, &mut Node)>) {
+    for (mut cursor, mut node) in cursor.iter_mut() {
+        cursor.state -= time.delta_secs();
         if cursor.state < 0. {
             cursor.state = 1.;
         }
-        if cursor.state >= 0.5 && style.display == Display::None {
-            style.display = Display::Flex;
+        if cursor.state >= 0.5 && node.display == Display::None {
+            node.display = Display::Flex;
         }
-        if cursor.state < 0.5 && style.display != Display::None {
-            style.display = Display::None;
+        if cursor.state < 0.5 && node.display != Display::None {
+            node.display = Display::None;
         }
     }
 }

@@ -12,9 +12,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::load("stylesheet.ess"));
-    commands.add(eml! {
+    commands.spawn(Camera2d::default());
+    commands.queue(StyleSheet::load("stylesheet.ess"));
+    commands.queue(eml! {
         <body>
             <span>"Black span with padding of 25 px and margin of 5px"</span>
             <div>"White div with 10% margin-left property, 3px padding and bold text"</div>

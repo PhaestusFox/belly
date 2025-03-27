@@ -261,28 +261,28 @@ impl TryFrom<Variant> for LayoutMode {
 
 pub fn update_range_representation(
     ranges: Query<&Range, Or<(Changed<Range>, Changed<Node>)>>,
-    nodes: Query<&Node>,
-    mut styles: Query<&mut Style>,
+    computed_nodes: Query<&ComputedNode>,
+    mut nodes: Query<&mut Node>
 ) {
     for range in ranges.iter()
     // .filter(|s| !s.progress_updating_locked())
     {
         let low_span = range.low_span;
         let high_span = range.high_span;
-        let Ok(low) = nodes.get(low_span) else {
+        let Ok(computed_low) = computed_nodes.get(low_span) else {
             continue;
         };
-        let Ok(high) = nodes.get(high_span) else {
+        let Ok(computed_high) = computed_nodes.get(high_span) else {
             continue;
         };
-        let Ok(mut style) = styles.get_mut(low_span) else {
+        let Ok(mut node) = nodes.get_mut(low_span) else {
             continue;
         };
-        let size = low.size() + high.size();
+        let size = computed_low.size() + computed_high.size();
         let offset = size * range.value.relative();
         match range.mode {
-            LayoutMode::Horizontal => style.min_width = Val::Px(offset.x),
-            LayoutMode::Vertical => style.min_height = Val::Px(offset.y),
+            LayoutMode::Horizontal => node.min_width = Val::Px(offset.x),
+            LayoutMode::Vertical => node.min_height = Val::Px(offset.y),
         }
     }
 }
@@ -290,7 +290,7 @@ pub fn update_range_representation(
 pub fn configure_range_layout(
     mut elements: Elements,
     progres_components: Query<(Entity, &Range), Changed<Range>>,
-    mut styles: Query<&mut Style>,
+    mut nodes: Query<(&mut Node, &ComputedNode)>,
     mut configured_modes: Local<HashMap<Entity, LayoutMode>>,
 ) {
     for (entity, progress) in progres_components.iter() {
@@ -312,7 +312,7 @@ pub fn configure_range_layout(
             }
         }
         {
-            let Ok(mut holder) = styles.get_mut(progress.holder) else {
+            let Ok((mut holder, _computed_node)) = nodes.get_mut(progress.holder) else {
                 continue;
             };
             holder.flex_direction = match mode {
@@ -321,7 +321,7 @@ pub fn configure_range_layout(
             }
         }
         {
-            let Ok(mut low) = styles.get_mut(progress.low_span) else {
+            let Ok((mut low, computed_low)) = nodes.get_mut(progress.low_span) else {
                 continue;
             };
             match mode {
