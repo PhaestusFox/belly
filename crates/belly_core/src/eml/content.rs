@@ -38,7 +38,7 @@ impl IntoContent for String {
 impl UpdateContent for String {
     type Query = &'static mut Text;
     fn update_content(mut item: QueryItem<Self::Query>, value: &Self) {
-        item.sections[0].value = value.clone();
+        item.0 = value.clone();
     }
 }
 
@@ -50,7 +50,7 @@ impl IntoContent for &str {
 impl UpdateContent for &str {
     type Query = &'static mut Text;
     fn update_content(mut item: QueryItem<Self::Query>, value: &Self) {
-        item.sections[0].value = value.to_string();
+        item.0 = value.to_string();
     }
 }
 

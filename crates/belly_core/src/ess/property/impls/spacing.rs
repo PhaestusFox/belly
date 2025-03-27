@@ -32,7 +32,7 @@ style_property! {
     MarginLeftProperty("margin-left") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -55,7 +55,7 @@ style_property! {
     MarginRightProperty("margin-right") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -78,7 +78,7 @@ style_property! {
     MarginTopProperty("margin-top") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -101,7 +101,7 @@ style_property! {
     MarginBottomProperty("margin-bottom") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -140,7 +140,7 @@ style_property! {
     PaddingLeftProperty("padding-left") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -163,7 +163,7 @@ style_property! {
     PaddingRightProperty("padding-right") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -186,7 +186,7 @@ style_property! {
     PaddingTopProperty("padding-top") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -209,7 +209,7 @@ style_property! {
     PaddingBottomProperty("padding-bottom") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -244,7 +244,7 @@ style_property! {
     BorderLeftProperty("border-width-left") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -265,7 +265,7 @@ style_property! {
     BorderRightProperty("border-width-right") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -285,7 +285,7 @@ style_property! {
     BorderTopProperty("border-width-top") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -305,7 +305,7 @@ style_property! {
     BorderBottomProperty("border-width-bottom") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -328,7 +328,7 @@ style_property! {
     ColumnGapProperty("column-gap") {
         Default = "0px";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -351,7 +351,7 @@ style_property! {
     RowGapProperty("row-gap") {
         Default = "0px";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {

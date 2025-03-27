@@ -58,9 +58,14 @@ impl PropertyParser<Option<ZIndex>> for OptionalZIndexParser {
             )));
         };
         // Ok(None)
+        
+        //TODO: OK, so zindex is no longer an enum that is either local or global, 
+        /*
+        This means that this doesn't work anymore, simply put. 
+         */
         match unit.as_str() {
-            "l" => Ok(Some(ZIndex::Local(num.to_int()))),
-            "g" => Ok(Some(ZIndex::Global(num.to_int()))),
+            "l" => Ok(Some(ZIndex(num.to_int()))),
+            "g" => Ok(Some(ZIndex(num.to_int()))),
             _ => Err(ElementsError::InvalidPropertyValue(format!(
                 "Expected auto|$local|$global, got `{}`",
                 token.to_string()

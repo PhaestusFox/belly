@@ -64,7 +64,7 @@ pub fn process_signals_system<P: 'static + QueryData, E: Event>(
             elements: &mut elements,
         };
         connections.process(signal, |handlers| {
-            for (target, group) in &handlers.iter().group_by(|(target, _)| target) {
+            for (target, group) in &handlers.iter().chunk_by(|(target, _)| target) {
                 if let Some(target) = target {
                     let Ok(mut args) = components.get_mut(*target) else {
                         continue;

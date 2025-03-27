@@ -224,7 +224,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
                 }
             }
             if let Some(entity) = replaced_entity {
-                world.get_entity_mut(entity).map(|e| e.despawn_recursive());
+                world.get_entity_mut(entity).map(|e| e.despawn_recursive()).expect("This to work");
             }
         });
     }

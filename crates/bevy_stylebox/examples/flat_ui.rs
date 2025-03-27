@@ -54,25 +54,24 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         modulate: bevy::color::palettes::css::DARK_GRAY.into(),
         ..default()
     };
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d::default());
     commands
-        .spawn(NodeBundle {
-            style: Style {
+        .spawn((
+            Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 padding: UiRect::all(Val::Px(200.)),
                 justify_content: JustifyContent::SpaceAround,
                 ..default()
             },
-            background_color: Color::NONE.into(),
-            ..default()
-        })
+            BackgroundColor(Color::NONE),
+        ))
         .with_children(|parent| {
             // WINDOW
 
             parent
                 .spawn(StyleboxBundle {
-                    style: Style {
+                    node: Node {
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
                         min_width: Val::Auto,
@@ -89,9 +88,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     // HEADER
 
                     parent
-                        .spawn(NodeBundle {
-                            background_color: Color::NONE.into(),
-                            style: Style {
+                        .spawn((
+                            BackgroundColor(Color::NONE),
+                            Node {
                                 justify_content: JustifyContent::SpaceBetween,
                                 align_self: AlignSelf::Stretch,
                                 height: Val::Px(32.),
@@ -102,22 +101,19 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                                     Val::Auto,
                                 ),
                                 ..default()
-                            },
-                            ..default()
-                        })
+                            }
+                        ))
                         .with_children(|parent| {
                             // HEADER TEXT
 
-                            parent.spawn(TextBundle {
-                                text: Text::from_section(
-                                    "Window Header".to_string(),
-                                    TextStyle {
-                                        font: asset_server.load("SourceCodePro-ExtraLight.ttf"),
-                                        font_size: 20.,
-                                        color: Color::WHITE,
-                                    },
-                                ),
-                                style: Style {
+                            parent.spawn((
+                                Text::new("Window Header"),
+                                TextFont::from_font(
+                                    asset_server.load("SourceCodePro-ExtraLight.ttf"),
+                                )
+                                .with_font_size(20.),
+                                TextColor(Color::WHITE),
+                                Node {
                                     width: Val::Auto,
                                     height: Val::Auto,
                                     // width: Val::Px(0.),
@@ -126,40 +122,32 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                                     max_height: Val::Px(20.),
                                     ..default()
                                 },
-                                ..default()
-                            });
+                            ));
 
                             // HEADER BUTTON
 
                             parent
-                                .spawn(ImageBundle {
-                                    image: UiImage {
-                                        texture: circle.clone(),
-                                        ..default()
-                                    },
-                                    style: Style {
+                                .spawn((
+                                    ImageNode::new(circle.clone()),
+                                    Node {
                                         padding: UiRect::all(Val::Px(2.)),
                                         width: Val::Px(20.),
                                         height: Val::Px(20.),
                                         ..default()
                                     },
-                                    ..default()
-                                })
+                                ))
                                 .with_children(|parent| {
-                                    parent.spawn(ImageBundle {
-                                        background_color: bevy::color::palettes::css::DARK_GRAY
-                                            .into(),
-                                        image: UiImage {
-                                            texture: asset_server.load("cross.png"),
-                                            ..default()
-                                        },
-                                        style: Style {
+                                    parent.spawn((
+                                        ImageNode::new(asset_server.load("cross.png")),
+                                        Node {
                                             width: Val::Px(16.),
                                             height: Val::Px(16.),
                                             ..default()
                                         },
-                                        ..default()
-                                    });
+                                        BackgroundColor(
+                                            bevy::color::palettes::css::DARK_GRAY.into(),
+                                        ),
+                                    ));
                                 });
                         });
 
@@ -168,7 +156,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     let bw = OUTER_RADIUS - INNER_RADIUS;
                     parent
                         .spawn(StyleboxBundle {
-                            style: Style {
+                            node: Node {
                                 flex_grow: 1.,
                                 margin: UiRect::new(
                                     Val::Px(bw),
@@ -192,7 +180,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                             parent
                                 .spawn(NodeBundle {
                                     background_color: bevy::color::palettes::css::LIMEGREEN.into(),
-                                    style: Style {
+                                    node: Node {
                                         flex_grow: 1.,
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
@@ -205,14 +193,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                                 })
                                 .with_children(|parent| {
                                     for word in MESSAGE.split(" ").filter(|w| !w.is_empty()) {
-                                        parent.spawn(TextBundle::from_section(
-                                            word,
-                                            TextStyle {
-                                                font: asset_server
-                                                    .load("SourceCodePro-ExtraLight.ttf"),
-                                                font_size: 20.,
-                                                color: Color::BLACK,
-                                            },
+                                        parent.spawn((
+                                            Text::new(word),
+                                            TextFont::from_font(
+                                                asset_server
+                                                    .load("SourceCodePro-ExtraLight.ttf")
+                                            ).with_font_size(20.),
+                                            TextColor(Color::WHITE),
                                         ));
                                     }
                                 });
@@ -222,7 +209,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                             parent
                                 .spawn(StyleboxBundle {
                                     stylebox: box_round_all_button,
-                                    style: Style {
+                                    node: Node {
                                         width: Val::Px(100.),
                                         height: Val::Px(32.),
                                         justify_content: JustifyContent::Center,
@@ -233,19 +220,14 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                                     ..default()
                                 })
                                 .with_children(|parent| {
-                                    parent.spawn(TextBundle {
-                                        text: Text::from_section(
-                                            "OK".to_string(),
-                                            TextStyle {
-                                                font: asset_server
-                                                    .load("SourceCodePro-ExtraLight.ttf"),
-                                                font_size: 20.,
-                                                color: Color::WHITE,
-                                            },
-                                        ),
-                                        style: Style { ..default() },
-                                        ..default()
-                                    });
+                                    parent.spawn((
+                                        Text::new(
+                                            "OK"),
+                                        TextFont::from_font( asset_server
+                                                    .load("SourceCodePro-ExtraLight.ttf")).with_font_size(20.),
+                                        TextColor(Color::WHITE),
+                                         Node::default(),
+                                    ));
                                 });
                         });
                 });

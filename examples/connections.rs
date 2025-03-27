@@ -149,7 +149,7 @@ impl<'w, 's> SuperCommands for Commands<'w, 's> {
         let mut root = None;
         let mut counter = None;
         self.spawn(NodeBundle {
-            style: Style {
+            node: Node {
                 width: Val::Percent(100.),
                 height: Val::Percent(100.),
                 // flex_wrap: FlexWrap::Wrap,
@@ -161,7 +161,7 @@ impl<'w, 's> SuperCommands for Commands<'w, 's> {
         .with_children(|parent| {
             parent
                 .spawn(NodeBundle {
-                    style: Style {
+                    node: Node {
                         width: Val::Percent(100.),
                         height: Val::Px(80.),
                         ..default()
@@ -188,7 +188,7 @@ impl<'w, 's> SuperCommands for Commands<'w, 's> {
                     counter = Some(counter_node);
                 });
             let root_node = parent.spawn(NodeBundle {
-                style: Style {
+                node: Node {
                     width: Val::Percent(100.),
                     height: Val::Percent(100.),
                     flex_wrap: FlexWrap::Wrap,
@@ -217,7 +217,7 @@ impl<'a, 'w, 's, E: Event> SuperContext for EventContext<'a, 'w, 's, E> {
             .insert(Name::new(name.to_string()))
             .insert(ButtonBundle {
                 background_color: Color::WHITE.into(),
-                style: Style {
+                node: Node {
                     margin: UiRect::all(Val::Px(20.)),
                     width: Val::Auto,
                     height: Val::Px(80.),
@@ -235,7 +235,7 @@ impl<'a, 'w, 's, E: Event> SuperContext for EventContext<'a, 'w, 's, E> {
                             color: Color::BLACK,
                         },
                     ),
-                    style: Style {
+                    node: Node {
                         margin: UiRect::all(Val::Px(25.)),
                         ..default()
                     },

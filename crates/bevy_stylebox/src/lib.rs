@@ -44,6 +44,7 @@ impl Plugin for StyleboxPlugin {
 pub struct StyleboxBundle {
     /// The stylebox of the node
     pub stylebox: Stylebox,
+    pub node: Node,
     /// Whether this node should block interaction with lower nodes
     pub focus_policy: FocusPolicy,
     /// The transform of the node

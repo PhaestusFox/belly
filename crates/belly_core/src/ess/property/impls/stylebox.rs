@@ -88,7 +88,7 @@ style_property! {
                     stylebox.texture = image;
                 }
             } else {
-                commands.add(Element::invalidate_entity(entity));
+                commands.queue(Element::invalidate_entity(entity));
                 commands.entity(entity).insert(Stylebox {
                     texture: image,
                     ..default()

@@ -10,14 +10,14 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d::default());
     commands.spawn(StyleboxBundle {
         stylebox: Stylebox {
             slice: UiRect::all(Val::Px(16.)),
             texture: asset_server.load("panel-blue.png"),
             ..default()
         },
-        style: Style {
+        node: Node {
             position_type: PositionType::Absolute,
             top: Val::Percent(25.),
             bottom: Val::Percent(25.),

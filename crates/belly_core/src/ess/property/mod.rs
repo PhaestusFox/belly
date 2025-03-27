@@ -343,7 +343,7 @@ pub trait Property: Default + Sized + Send + Sync + 'static {
                             None
                         }
                     })
-                    .group_by(|(_prop, _depth, weight)| *weight)
+                    .chunk_by(|(_prop, _depth, weight)| *weight)
                     .into_iter()
                     .map(|(_, group)| group)
                     .next()

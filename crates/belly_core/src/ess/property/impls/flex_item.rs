@@ -8,7 +8,7 @@ style_property! {
     AlignSelfProperty("align-self") {
         Default = "auto";
         Item = AlignSelf;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<AlignSelf>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -33,7 +33,7 @@ style_property! {
     FlexGrowProperty("flex-grow") {
         Default = "0.0";
         Item = f32;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::NumParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -56,7 +56,7 @@ style_property! {
     FlexShrinkProperty("flex-shrink") {
         Default = "1.0";
         Item = f32;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::NumParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -81,7 +81,7 @@ style_property! {
     FlexBasisProperty("flex-basis") {
         Default = "auto";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {

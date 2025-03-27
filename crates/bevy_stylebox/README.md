@@ -28,7 +28,7 @@ fn setup(
             texture: asset_server.load("panel-blue.png"),
             ..default()
         },
-        style: Style {
+        node: Node {
             position_type: PositionType::Absolute,
             position: UiRect::all(Val::Percent(25.)),
             ..default()

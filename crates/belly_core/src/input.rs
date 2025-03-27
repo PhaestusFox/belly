@@ -173,7 +173,7 @@ pub struct State {
 #[query_data(mutable)]
 pub struct NodeQuery {
     entity: Entity,
-    node: &'static Node,
+    node: &'static ComputedNode,
     global_transform: &'static GlobalTransform,
     interaction: Option<&'static mut Interaction>,
     focus_policy: Option<&'static FocusPolicy>,

@@ -41,7 +41,7 @@ fn img(ctx: &mut WidgetContext, img: &mut Img) {
     let content = ctx.content();
     ctx.add(from!(this, Img: modulate) >> to!(img.entity, BackgroundColor:0));
     ctx.commands().entity(img.entity).insert(ImageBundle {
-        style: Style {
+        node: Node {
             display: Display::None,
             ..default()
         },

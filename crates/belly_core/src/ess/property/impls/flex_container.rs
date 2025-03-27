@@ -23,7 +23,7 @@ style_property! {
     FlexDirectionProperty("flex-direction") {
         Default = "row";
         Item = FlexDirection;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<FlexDirection>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -54,7 +54,7 @@ style_property! {
     FlexWrapProperty("flex-wrap") {
         Default = "no-wrap";
         Item = FlexWrap;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<FlexWrap>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -94,7 +94,7 @@ style_property! {
     AlignItemsProperty("align-items") {
         Default = "default";
         Item = AlignItems;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<AlignItems>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -134,7 +134,7 @@ style_property! {
     AlignContentProperty("align-content") {
         Default = "default";
         Item = AlignContent;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<AlignContent>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -170,7 +170,7 @@ style_property! {
     JustifyContentProperty("justify-content") {
         Default = "default";
         Item = JustifyContent;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<JustifyContent>;
         Apply = |value, style, _assets, _commands, _entity| {
