@@ -40,13 +40,13 @@ fn img(ctx: &mut WidgetContext, img: &mut Img) {
     let this = ctx.entity();
     let content = ctx.content();
     ctx.add(from!(this, Img: modulate) >> to!(img.entity, BackgroundColor:0));
-    ctx.commands().entity(img.entity).insert(ImageBundle {
-        node: Node {
+    ctx.commands().entity(img.entity).insert((
+        ImageNode::default(),
+        Node {
             display: Display::None,
             ..default()
         },
-        ..default()
-    });
+    ));
     ctx.insert(ElementBundle::default())
         .add_children(&[img.entity]);
     ctx.commands().entity(img.entity).add_children(&content);

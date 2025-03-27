@@ -23,9 +23,7 @@ use bevy::{
 pub struct StyleboxPlugin;
 
 const EPSILON: f32 = 0.000005;
-const TWO_EPSILONS: f32 = EPSILON + EPSILON;
 const ONE_MINUS_EPSILON: f32 = 1.0 - EPSILON;
-const ONE_MINUS_TWO_EPSILONS: f32 = ONE_MINUS_EPSILON - EPSILON;
 
 impl Plugin for StyleboxPlugin {
     fn build(&self, app: &mut App) {

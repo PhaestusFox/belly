@@ -321,7 +321,7 @@ pub fn configure_range_layout(
             }
         }
         {
-            let Ok((mut low, computed_low)) = nodes.get_mut(progress.low_span) else {
+            let Ok((mut low, _)) = nodes.get_mut(progress.low_span) else {
                 continue;
             };
             match mode {
