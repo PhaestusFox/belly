@@ -48,8 +48,8 @@ fn img(ctx: &mut WidgetContext, img: &mut Img) {
         ..default()
     });
     ctx.insert(ElementBundle::default())
-        .push_children(&[img.entity]);
-    ctx.commands().entity(img.entity).push_children(&content);
+        .add_children(&[img.entity]);
+    ctx.commands().entity(img.entity).add_children(&content);
 }
 
 #[derive(Resource, Deref, DerefMut, Default)]
@@ -222,7 +222,7 @@ impl FromWorldAndParams for Img {
 fn load_img(
     asset_server: Res<AssetServer>,
     mut elements: Query<(Entity, &mut Img), Changed<Img>>,
-    mut images: Query<(&mut UiImage, &mut Style)>,
+    mut images: Query<(&mut ImageNode, &mut Node)>,
     mut registry: ResMut<ImageRegistry>,
     assets: Res<Assets<Image>>,
     mut events: EventWriter<AssetEvent<Image>>,
@@ -256,7 +256,7 @@ fn load_img(
             }
         }
         let (mut image, mut style) = images.get_mut(img.entity).unwrap();
-        image.texture = handle.clone();
+        image.image = handle.clone();
 
         // force inner image size recalculation if Image asset already loaded
         if assets.contains(&handle) {
@@ -321,112 +321,112 @@ fn update_img_size(
 }
 
 fn update_img_layout(
-    elements: Query<(&Img, &Node), Or<(Changed<Img>, Changed<Node>)>>,
-    mut styles: Query<&mut Style>,
+    elements: Query<(&Img, &ComputedNode), Or<(Changed<Img>, Changed<ComputedNode>)>>,
+    mut nodes: Query<&mut Node>,
 ) {
-    for (element, node) in elements.iter() {
-        let Ok(mut style) = styles.get_mut(element.entity) else {
+    for (element, computed_node) in elements.iter() {
+        let Ok(mut node) = nodes.get_mut(element.entity) else {
             continue;
         };
         if element.size.x.abs() < f32::EPSILON
             || element.size.y.abs() < f32::EPSILON
-            || node.size().x.abs() < f32::EPSILON
-            || node.size().y.abs() < f32::EPSILON
+            || computed_node.size().x.abs() < f32::EPSILON
+            || computed_node.size().y.abs() < f32::EPSILON
         {
-            style.display = Display::None;
+            node.display = Display::None;
             continue;
         } else {
-            style.display = Display::Flex;
+            node.display = Display::Flex;
         }
         let aspect = element.size.y / element.size.x;
         match element.mode {
             ImgMode::Fit => {
                 let (width, height) = if aspect > 1.0 {
-                    let width = node.size().x;
+                    let width = computed_node.size().x;
                     let height = width * aspect;
-                    if height > node.size().y {
-                        let width = width * (node.size().y / height);
-                        let height = node.size().y;
+                    if height > computed_node.size().y {
+                        let width = width * (computed_node.size().y / height);
+                        let height = computed_node.size().y;
                         (width, height)
                     } else {
                         (width, height)
                     }
                 } else {
-                    let height = node.size().y;
+                    let height = computed_node.size().y;
                     let width = height / aspect;
-                    if width > node.size().x {
-                        let height = height * (node.size().x / width);
-                        let width = node.size().x;
+                    if width > computed_node.size().x {
+                        let height = height * (computed_node.size().x / width);
+                        let width = computed_node.size().x;
                         (width, height)
                     } else {
                         (width, height)
                     }
                 };
-                style.min_height = Val::Px(height);
-                style.height = Val::Px(height);
-                style.min_width = Val::Px(width);
-                style.width = Val::Px(width);
-                let hmargin = 0.5 * (node.size().x - width);
-                let vmargin = 0.5 * (node.size().y - height);
+                node.min_height = Val::Px(height);
+                node.height = Val::Px(height);
+                node.min_width = Val::Px(width);
+                node.width = Val::Px(width);
+                let hmargin = 0.5 * (computed_node.size().x - width);
+                let vmargin = 0.5 * (computed_node.size().y - height);
 
-                style.margin.top = Val::Px(vmargin.max(0.));
-                style.margin.bottom = Val::Px(vmargin.max(0.));
-                style.margin.left = Val::Px(hmargin.max(0.));
-                style.margin.right = Val::Px(hmargin.max(0.));
+                node.margin.top = Val::Px(vmargin.max(0.));
+                node.margin.bottom = Val::Px(vmargin.max(0.));
+                node.margin.left = Val::Px(hmargin.max(0.));
+                node.margin.right = Val::Px(hmargin.max(0.));
             }
             ImgMode::Cover => {
                 let (width, height) = if aspect > 1.0 {
-                    let width = node.size().x;
+                    let width = computed_node.size().x;
                     let height = width * aspect;
-                    if height < node.size().y {
-                        let width = width * (node.size().y / height);
-                        let height = node.size().y;
+                    if height < computed_node.size().y {
+                        let width = width * (computed_node.size().y / height);
+                        let height = computed_node.size().y;
                         (width, height)
                     } else {
                         (width, height)
                     }
                 } else {
-                    let height = node.size().y;
+                    let height = computed_node.size().y;
                     let width = height / aspect;
-                    if width < node.size().x {
-                        let height = height * (node.size().x / width);
-                        let width = node.size().x;
+                    if width < computed_node.size().x {
+                        let height = height * (computed_node.size().x / width);
+                        let width = computed_node.size().x;
                         (width, height)
                     } else {
                         (width, height)
                     }
                 };
 
-                style.min_height = Val::Px(height);
-                style.height = Val::Px(height);
-                style.min_width = Val::Px(width);
-                style.width = Val::Px(width);
-                let hmargin = 0.5 * (node.size().x - width);
-                let vmargin = 0.5 * (node.size().y - height);
+                node.min_height = Val::Px(height);
+                node.height = Val::Px(height);
+                node.min_width = Val::Px(width);
+                node.width = Val::Px(width);
+                let hmargin = 0.5 * (computed_node.size().x - width);
+                let vmargin = 0.5 * (computed_node.size().y - height);
 
-                style.margin.top = Val::Px(vmargin.min(0.));
-                style.margin.bottom = Val::Px(vmargin.min(0.));
-                style.margin.left = Val::Px(hmargin.min(0.));
-                style.margin.right = Val::Px(hmargin.min(0.));
+                node.margin.top = Val::Px(vmargin.min(0.));
+                node.margin.bottom = Val::Px(vmargin.min(0.));
+                node.margin.left = Val::Px(hmargin.min(0.));
+                node.margin.right = Val::Px(hmargin.min(0.));
             }
             ImgMode::Stretch => {
-                style.min_width = Val::Px(0.);
-                style.min_height = Val::Px(0.);
-                style.width = Val::Percent(100.);
-                style.height = Val::Percent(100.);
-                style.margin = UiRect::all(Val::Px(0.));
+                node.min_width = Val::Px(0.);
+                node.min_height = Val::Px(0.);
+                node.width = Val::Percent(100.);
+                node.height = Val::Percent(100.);
+                node.margin = UiRect::all(Val::Px(0.));
             }
             ImgMode::Source => {
-                style.width = Val::Px(element.size.x);
-                style.height = Val::Px(element.size.y);
-                style.min_width = Val::Px(element.size.x);
-                style.min_height = Val::Px(element.size.y);
-                let hmargin = 0.5 * (node.size().x - element.size.x);
-                let vmargin = 0.5 * (node.size().y - element.size.y);
-                style.margin.left = Val::Px(hmargin);
-                style.margin.right = Val::Px(hmargin);
-                style.margin.top = Val::Px(vmargin);
-                style.margin.bottom = Val::Px(vmargin);
+                node.width = Val::Px(element.size.x);
+                node.height = Val::Px(element.size.y);
+                node.min_width = Val::Px(element.size.x);
+                node.min_height = Val::Px(element.size.y);
+                let hmargin = 0.5 * (computed_node.size().x - element.size.x);
+                let vmargin = 0.5 * (computed_node.size().y - element.size.y);
+                node.margin.left = Val::Px(hmargin);
+                node.margin.right = Val::Px(hmargin);
+                node.margin.top = Val::Px(vmargin);
+                node.margin.bottom = Val::Px(vmargin);
             }
         }
     }
