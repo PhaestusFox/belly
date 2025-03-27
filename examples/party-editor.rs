@@ -133,7 +133,7 @@ fn Animal(ctx: &mut WidgetContext, ch: &mut AnimalState) {
     let this = ctx.entity();
     let color = ctx.spawn();
     ctx.commands()
-        .add(from!(this, AnimalState: color) >> to!(color, BackgroundColor:0));
+        .queue(from!(this, AnimalState: color) >> to!(color, BackgroundColor:0));
     ctx.render(eml! {
         <button>
             <span {color} c:animal s:background-color=managed()>
