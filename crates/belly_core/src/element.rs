@@ -31,19 +31,10 @@ impl Plugin for ElementsPlugin {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
 pub struct InvalidateElements;
 
-#[derive(Bundle)]
+#[derive(Bundle, Default)]
 pub struct ElementBundle {
     pub element: Element,
     pub node: Node,
-}
-
-impl Default for ElementBundle {
-    fn default() -> Self {
-        ElementBundle {
-            element: Default::default(),
-            node: Node::default()
-        }
-    }
 }
 
 #[derive(Bundle)]
@@ -81,8 +72,6 @@ pub enum DisplayElement {
     #[default]
     Block,
     Inline,
-    // TODO: deside if it even needed
-    // InlineBlock,
 }
 
 #[derive(Component, Default)]

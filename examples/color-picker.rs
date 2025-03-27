@@ -26,7 +26,7 @@ const COLORS: &[&str] = &[
 use belly_core::relations::props::impls::ColorFn;
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     commands.queue(StyleSheet::load("color-picker.ess"));
     let colorbox = commands.spawn_empty().id();
     commands.queue(eml! {

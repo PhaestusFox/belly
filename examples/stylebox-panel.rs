@@ -12,8 +12,8 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::parse(
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::parse(
         r##"
         span {
             margin: 5px;
@@ -65,7 +65,7 @@ fn setup(mut commands: Commands) {
     ));
     let styles = &["flat png", "flat basis", "flat big", "tex"];
     let colors = &["red", "green", "blue", "grey"];
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="20px" c:vbox>
             "The varios styleboxes. Resize the window to see how it behaves."
             <for style in=styles>

@@ -35,7 +35,7 @@ enum ColorBox {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let label = commands.spawn_empty().insert(Greet::default()).id();
     let that = commands.spawn_empty().id();
     let colorbox = commands.spawn_empty().insert(ColorBox::Red).id();

@@ -39,10 +39,10 @@
 //! ];
 //!
 //! fn setup(mut commands: Commands) {
-//!     commands.spawn(Camera2dBundle::default());
-//!     commands.add(StyleSheet::load("color-picker.ess"));
+//!     commands.spawn(Camera2d);
+//!     commands.queue(StyleSheet::load("color-picker.ess"));
 //!     let colorbox = commands.spawn_empty().id();
-//!     commands.add(eml! {
+//!     commands.queue(eml! {
 //!         <body>
 //!             <span c:controls>
 //!                 <slider c:red

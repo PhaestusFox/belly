@@ -13,11 +13,11 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
         <body s:padding="50px" s:flex-direction="column">
-            <progressbar s:width="200px" bind:value=from!(Time:elapsed_seconds()*0.2)/>
-            <progressbar s:width="200px" bind:value=from!(Time:elapsed_seconds()*0.2)>
+            <progressbar s:width="200px" bind:value=from!(Time:elapsed_secs()*0.2)/>
+            <progressbar s:width="200px" bind:value=from!(Time:elapsed_secs()*0.2)>
                 <slot separator>
                     <span s:height="100%" s:min-width="10px" s:background-color="red"/>
                 </slot>

@@ -354,7 +354,7 @@ impl<Q: WorldQuery, E: Event> Default for EntityConnections<Q, E> {
     }
 }
 
-// commands.add( /* one of */
+// commands.queue( /* one of */
 //  Connect::entity(e).on(btn_pressed).func(|_| { })
 //  Connect::entity(e).on(btn_pressed).handle(run!(for e |_| { })
 //  Connect::event(mouse_down).to_func(|_| { }) --- ?

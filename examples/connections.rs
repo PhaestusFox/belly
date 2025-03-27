@@ -67,7 +67,7 @@ fn button_hovered(event: &ButtonEvent) -> EventSource {
 
 // WorldEventFilterFunc
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     // add_root() function adds some basic nodes and returns
     // root and counter entities: root is the container where
     // the buttons will be spawned and the counter is the

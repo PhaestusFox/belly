@@ -40,10 +40,10 @@ const COLORS: &[&'static str] = &[
 ];
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::load("color-picker.ess"));
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::load("color-picker.ess"));
     let colorbox = commands.spawn_empty().id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body>
             <span c:controls>
                 <slider c:red
@@ -195,8 +195,8 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
         <body s:padding="50px">
             "Hello, "<strong>"world"</strong>"!"
         </body>
@@ -273,9 +273,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let ten_percent = Val::Percent(10.);
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="5px">
             <span s:padding="25px" s:margin="5px" s:background-color="black">
                 "Black span with padding of 25 px and margin of 5px"
@@ -342,9 +342,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::load("stylesheet.ess"));
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::load("stylesheet.ess"));
+    commands.queue(eml! {
         <body>
             <span>"Black span with padding of 25 px and margin of 5px"</span>
             <div>"White div with 10% margin-left property, 3px padding and bold text"</div>
@@ -358,9 +358,9 @@ The `StyleSheet` consists of sets of style properties and rules that determine w
 In the example above I define `StyleSheet` asset `styelsheets.ess` with styles for every `<body>`, `<span>`, or `<div>` you add to the UI. Each `StyleSheet` is loaded into the global namespace and affects all matched elements. You add as many stylesheets as you want. You can load stylesheets from assets as well as parse the content:
 ```rust
 // load StyleSheet from asset
-commands.add(StyleSheet::load("stylesheets.ess"));
+commands.queue(StyleSheet::load("stylesheets.ess"));
 // parse StyleSheet content
-commands.add(StyleSheet::parse(r"#
+commands.queue(StyleSheet::parse(r"#
     body {
         padding: 50px;
     }
@@ -436,9 +436,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::load("selectors.ess"));
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::load("selectors.ess"));
+    commands.queue(eml! {
         <body>
             <button c:red><span c:content>"red"</span></button>
             <button c:green><span c:content>"green"</span></button>
@@ -511,7 +511,7 @@ div {
 ```
 ```rust
 // examples/primary_secondary.rs
-commands.add(eml! {
+commands.queue(eml! {
     <body>
         <div c:primary>"bevy primary 1"<div>"bevy primary 1 inner"</div>
             <div c:secondary>"bevy secondary 1"<div>"bevy secondary 1 inner"</div>
@@ -543,7 +543,7 @@ The one important thing I want to notice is `managed` properties. Sooner or late
 
 This is done by passing `managed()` value to a property you want to control:
 ```rust
-commands.add(eml! {
+commands.queue(eml! {
     <span s:margin-right=managed()/>
 })
 ```
@@ -590,7 +590,7 @@ fn setup(mut commands: Commands) {
     commands
         .connect()
         .event(space_key_released)
-        .to_func(|c| info!("Space released at {}!", c.time().elapsed_seconds()));
+        .to_func(|c| info!("Space released at {}!", c.time().elapsed_secs()));
 }
 ```
 `space_key_released` is the func that takes an `Event` and returns `bool` indicated that this `Event` matches requirements. `space_key_released` is the `WorldEvent`, it doesn't relate to any entity. Under the hood the `commands.connect().event().to_func()` call registers the `Connection` to the `World`, and adds the system that reads `KeyboardInput` events, select matched events and invokes the provided function for them. The custom system registered once for each combination of `Event`/`QueryItem` types (I'll explain how `QueryItem`s work later). This systems runs in separate stage in parallel.
@@ -750,7 +750,7 @@ fn button_hovered(event: &ButtonEvent) -> EventSource {
 
 // WorldEventFilterFunc
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     // add_root() function adds some basic nodes and returns 
     // root and counter entities: root is the container where
     // the buttons will be spawned and the counter is the 
@@ -835,10 +835,10 @@ struct Counter {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     // spawn empty Entity to reference it in connections & widgets
     let counter = commands.spawn_empty().id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:justify-content="center" s:align-items="center">
             // connect the press signal to closure executed on the Counter context
             <button on:press=run!(for counter |c: Counter| c.count += 1)>"+"</button>
@@ -898,10 +898,10 @@ struct Counter {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     // spawn empty Entity to reference it in binds & widgets
     let counter = commands.spawn(Counter::default()).id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:justify-content="center" s:align-items="center">
             // connect the press event to closure executed on the Counter context
             <button on:press=run!(for counter |c: Counter| c.count += 1)>"+"</button>
@@ -947,7 +947,7 @@ To be able to describe what transformers are and how it works I have to notice o
 The binding system doesn't depend on `eml`. The way I bind `Counter.count` to `Label.value` in the previous example using `eml` syntax (`<label bind:value=from!(...)>)` demonstrates the `eml!` feature of interacting with binds more than binding features itself. You can use  bindings independently from all other `belly` systems like this:
 
 ```rust
-commands.add(
+commands.queue(
     from!(counter, Counter:count|fmt.c("{c}")) >> to!(label, Label:value)
 );
 ```
@@ -996,7 +996,7 @@ fmt.some_vec("({}, {})", some_vec.x, some_vec.y)
 `belly` comes with `Transformers` namespace struct so you can define extension trait and implement your trait for `Transformers` struct. Bind macros expand global transformers to calls on this struct. For example, you may need to change `Color.r` value when some `f32` value is changed (change the color of the health's progress bar when the player's health changes). Unfortunately `Color` provides only methods for changing color channels while fields are left private. To make such transformation possible, `belly` implements for you `ColorTransformerExt` and implements it for `Transformers`. So you can modify color values like this:
 
 ```rust
-commands.add(
+commands.queue(
     from!(player, Health:value) >> to!(health, BackgroundColor:0|Color.r)
 )
 ```
@@ -1009,7 +1009,7 @@ This bind says: when `value` of `Health` component on `player` entity changes, c
 
 The last thing I want to notice here: you can pass global transformers to any `from!` or `to!` macro, but not both. The previous piece of code could be written like this:
 ```rust
-commands.add(
+commands.queue(
     from!(player, Health:value|Color.r) >> to!(health, BackgroundColor:0)
 )
 ```
@@ -1022,14 +1022,14 @@ commands.add(
 
 Let's look at the first piece of code from the previous chapter closer:
 ```rust
-commands.add(
+commands.queue(
     from!(player, Health:value) >> to!(health, BackgroundColor:0|Color.r)
 )
 ```
 Look at this part: `BackgroundColor:0|Color.r`. You may notice that writing `Color` is unnecessary because you (and the compiler) know that `BackroundColor:0` is a type of `Color` and you are about to use the `Color` transformer here. Actually you can omit the the `color` part and write this bind like this:
 
 ```rust
-commands.add(
+commands.queue(
     from!(player, Health:value) >> to!(health, BackgroundColor:0|r)
 )
 ```
@@ -1059,8 +1059,8 @@ Unfortunately, when you use `from!` macro the target type is unknown. This is wh
 In the examples above I showed you how to bind Component to Component. `belly` also provides you with a way to bind Resource to Component. Binding from Resource is all the same as binding from Component except you do not need to pass entity to `from!` macro:
 
 ```rust
-commands.add(
-    from!(Time:elapsed_seconds()|fmt.t("Elapsed: {t}")) >> to!(label, Label:value)
+commands.queue(
+    from!(Time:elapsed_secs()|fmt.t("Elapsed: {t}")) >> to!(label, Label:value)
 )
 ```
 
@@ -1080,10 +1080,10 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
         <body s:padding="50px">
-            "Elapsed seconds: "{from!(Time:elapsed_seconds() | fmt.s("{s:0.2}"))}
+            "Elapsed seconds: "{from!(Time:elapsed_secs() | fmt.s("{s:0.2}"))}
         </body>
     });
 }
@@ -1161,8 +1161,8 @@ In this example wher player health reduces to zero I change UI somehow:
 ```rust
 // examples/elements-modification.rs
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
         <body s:padding="50px">
             <button on:press=|ctx| { ctx.send_event(ToggleClass("red")); }>
                 "Toggle .red class"
@@ -1237,9 +1237,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let names = &["Alice", "Cart", "François", "Yasha"];
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="50px">
             <for name in=names>
                 <div>"My name is "{name}</div>
@@ -1286,11 +1286,11 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
         <body s:padding="50px" s:flex-direction="column">
-            <progressbar s:width="200px" bind:value=from!(Time:elapsed_seconds()*0.2)/>
-            <progressbar s:width="200px" bind:value=from!(Time:elapsed_seconds()*0.2)>
+            <progressbar s:width="200px" bind:value=from!(Time:elapsed_secs()*0.2)/>
+            <progressbar s:width="200px" bind:value=from!(Time:elapsed_secs()*0.2)>
                 <slot separator>
                     <span s:height="100%" s:min-width="10px" s:background-color="red"/>
                 </slot>

@@ -1,5 +1,5 @@
 use belly::prelude::*;
-use bevy::{prelude::*, render::camera::ScalingMode, text::TextSettings, window::PrimaryWindow};
+use bevy::{prelude::*, render::camera::ScalingMode, window::PrimaryWindow};
 // TODO: rename to ui-scale, add example comment
 
 fn main() {
@@ -12,27 +12,23 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle {
-        transform: Transform::from_translation(Vec3::new(0., 0., 5.)),
-        projection: OrthographicProjection {
+    commands.spawn((
+                       Camera2d, 
+        Transform::from_translation(Vec3::new(0., 0., 5.)),
+        OrthographicProjection {
             scaling_mode: ScalingMode::AutoMin {
                 min_width: 1024.,
                 min_height: 768.,
             },
-            ..default()
-        },
-        ..default()
-    });
-    commands.spawn(SpriteBundle {
-        texture: asset_server.load("icon.png"),
+            ..OrthographicProjection::default_2d()
+        }
+    ));
+    commands.spawn(Sprite {
+        image: asset_server.load("icon.png"),
         ..default()
     });
     commands.insert_resource(UiScale(1.));
-    commands.insert_resource(TextSettings {
-        allow_dynamic_font_size: true,
-        ..default()
-    });
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:flex-direction="column">
             <span s:height="15px"/>
             <span s:width="50px" s:height="15px" s:background-color="rebeccapurple"/>
