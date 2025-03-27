@@ -43,12 +43,12 @@ fn setup(mut commands: Commands) {
     commands.queue(eml! {
         <body>
             <div>
-                <button on:press=|ctx| info!("I was pressed at {}", ctx.time().elapsed_seconds())>
+                <button on:press=|ctx| info!("I was pressed at {}", ctx.time().elapsed_secs())>
                     "Press me and look at the logs!"
                 </button>
             </div>
             <div>
-                <button on:press=|ctx| ctx.send_event(MyEvent { emited_at: ctx.time().elapsed_seconds() })>
+                <button on:press=|ctx| ctx.send_event(MyEvent { emited_at: ctx.time().elapsed_secs() })>
 
                     "I will send custom event, check the logs"
                 </button>
