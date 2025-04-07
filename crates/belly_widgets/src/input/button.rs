@@ -504,7 +504,7 @@ fn handle_input_system(
 ) {
     state_changes.clear();
 
-    if let Some(entity) = repeat_state.hits(time.delta_seconds()) {
+    if let Some(entity) = repeat_state.hits(time.delta_secs()) {
         button_events.send(BtnEvent::Pressed(entity));
     }
 

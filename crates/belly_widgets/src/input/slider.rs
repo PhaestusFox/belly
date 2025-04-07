@@ -53,9 +53,9 @@ struct SliderGrabber {
 fn handle_grabber_input(
     mut events: EventReader<PointerInput>,
     mut sliders: Query<&mut Range>,
-    grabbers: Query<(Entity, &SliderGrabber, &Node)>,
-    mut styles: Query<&mut Style>,
-    holders: Query<(&GlobalTransform, &Node)>,
+    grabbers: Query<(Entity, &SliderGrabber, &ComputedNode)>,
+    mut nodes: Query<&mut Node>,
+    holders: Query<(&GlobalTransform, &ComputedNode)>,
 
     mut active_grabber: Local<Option<Entity>>,
     mut active_slider: Local<Option<Entity>>,
@@ -90,7 +90,7 @@ fn handle_grabber_input(
             let Ok((_, low_node)) = holders.get(range.low_span) else {
                 continue;
             };
-            let Ok(mut style) = styles.get_mut(range.low_span) else {
+            let Ok(mut style) = nodes.get_mut(range.low_span) else {
                 continue;
             };
             let grabber_offset = gnode.size() * 0.5;

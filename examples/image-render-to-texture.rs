@@ -94,37 +94,33 @@ fn setup_viewport(
 
     // The cube that will be rendered to the texture.
     commands.spawn((
-        PbrBundle {
-            mesh: cube_handle,
-            material: cube_material_handle,
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
-            ..default()
-        },
+        Mesh3d(cube_handle),
+        MeshMaterial3d(cube_material_handle),
+        Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
         FirstPassViewport,
         viewport_pass_layer.clone(),
     ));
 
     // Light
     // NOTE: Currently lights are shared between passes - see https://github.com/bevyengine/bevy/issues/3462
-    commands.spawn(PointLightBundle {
-        transform: Transform::from_translation(Vec3::new(0.0, 0.0, 10.0)),
-        ..default()
-    });
+    commands.spawn((
+        PointLight::default(),
+        Transform::from_translation(Vec3::new(0.0, 0.0, 10.0)),
+    ));
 
     commands.insert_resource(ClearColor(Color::WHITE));
     commands
-        .spawn(Camera3dBundle {
-            camera_3d: Camera3d::default(),
-            camera: Camera {
+        .spawn((
+            Camera3d::default(),
+             Camera {
                 // render before the "main pass" camera
                 order: -1,
                 target: RenderTarget::Image(image_handle.clone()),
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 15.0))
+            Transform::from_translation(Vec3::new(0.0, 0.0, 15.0))
                 .looking_at(Vec3::default(), Vec3::Y),
-            ..default()
-        })
+        ))
         .insert(viewport_pass_layer)
         // .insert(UiCameraConfig { show_ui: false })
         ;
@@ -138,9 +134,9 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>, viewport: Re
         None => asset_server.load("icon.png"),
     };
 
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     //use some css for the viewport if you want to
-    commands.add(StyleSheet::parse(
+    commands.queue(StyleSheet::parse(
         "
             body { padding: 50px; }
             #viewport {
@@ -152,7 +148,7 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>, viewport: Re
         ",
     ));
 
-    commands.add(eml! {
+    commands.queue(eml! {
         <body>
             <img  id="viewport" src=img_viewport></img>
         </body>
@@ -162,7 +158,7 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>, viewport: Re
 /// Rotates the inner cube (FirstPassViewport)
 fn rotator_system(time: Res<Time>, mut query: Query<&mut Transform, With<FirstPassViewport>>) {
     for mut transform in &mut query {
-        transform.rotate_x(1.5 * time.delta_seconds());
-        transform.rotate_z(1.3 * time.delta_seconds());
+        transform.rotate_x(1.5 * time.delta_secs());
+        transform.rotate_z(1.3 * time.delta_secs());
     }
 }

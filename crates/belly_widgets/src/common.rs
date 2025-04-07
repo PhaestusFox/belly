@@ -22,7 +22,6 @@ impl Plugin for CommonsPlugin {
         app.register_widget::<BodyWidget>();
         app.register_widget::<DivWidget>();
         app.register_widget::<LabelWidget>();
-        // app.register_widget::<Label>();
         app.register_widget::<ProgressbarWidget>();
         app.register_widget::<SpanWidget>();
         app.register_widget::<StrongWidget>();
@@ -48,7 +47,7 @@ fn body(ctx: &mut WidgetContext) {
     let content = ctx.content();
     ctx.insert(ElementBundle::default())
         .insert(Interaction::None)
-        .push_children(&content);
+        .add_children(&content);
 }
 
 #[widget]
@@ -57,7 +56,7 @@ fn body(ctx: &mut WidgetContext) {
 /// and is used to group `eml` elements to be styled with `ess`.
 fn div(ctx: &mut WidgetContext) {
     let content = ctx.content();
-    ctx.insert(ElementBundle::default()).push_children(&content);
+    ctx.insert(ElementBundle::default()).add_children(&content);
 }
 
 #[widget]
@@ -78,7 +77,7 @@ fn progressbar(ctx: &mut WidgetContext) {
 #[widget]
 fn span(ctx: &mut WidgetContext) {
     let content = ctx.content();
-    ctx.insert(ElementBundle::default()).push_children(&content);
+    ctx.insert(ElementBundle::default()).add_children(&content);
 }
 
 #[widget]
@@ -89,7 +88,7 @@ fn span(ctx: &mut WidgetContext) {
 /// some words that are of greater importance compared to the rest of the content.
 fn strong(ctx: &mut WidgetContext) {
     let content = ctx.content();
-    ctx.insert(ElementBundle::default()).push_children(&content);
+    ctx.insert(ElementBundle::default()).add_children(&content);
 }
 
 #[derive(Component, Default)]
@@ -103,6 +102,6 @@ pub struct Label {
 /// the children and renders the content of bindable `value` param.
 fn label(ctx: &mut WidgetContext) {
     let this = ctx.this().id();
-    ctx.add(from!(this, Label: value) >> to!(this, Text:sections[0].value));
+    ctx.add(from!(this, Label: value) >> to!(this, Text:0));
     ctx.insert(TextElementBundle::default());
 }

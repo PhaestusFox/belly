@@ -12,8 +12,8 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
         <body s:padding="50px">
             "Hello, "<strong>"world"</strong>"!"
         </body>

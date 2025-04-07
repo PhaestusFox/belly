@@ -12,8 +12,8 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::parse(
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::parse(
         r#"
         .text-input-value {
             color: #2f2f2f;
@@ -28,7 +28,7 @@ fn setup(mut commands: Commands) {
     ));
     let input = commands.spawn_empty().id();
     let label = commands.spawn_empty().id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="50px" s:flex-direction="column">
             <div>
                 <span>"Type input some text:"</span>

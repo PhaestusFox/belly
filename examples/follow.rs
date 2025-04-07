@@ -14,8 +14,8 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(eml! {
     <body s:padding="50px">
         "Press space to spawn sprite. "
         "The <follow> will bind own absolute position "
@@ -31,9 +31,12 @@ fn spawn_sprites(
 ) {
     if keys.just_pressed(KeyCode::Space) {
         let sprite = commands
-            .spawn(SpriteBundle {
-                texture: assets.load("icon.png"),
-                transform: Transform {
+            .spawn((
+                Sprite {
+                    image: assets.load("icon.png"),
+                    ..default()
+                },
+                Transform {
                     translation: Vec3 {
                         x: -200.,
                         y: 200.,
@@ -41,8 +44,7 @@ fn spawn_sprites(
                     },
                     ..default()
                 },
-                ..default()
-            })
+            ))
             .id();
         elements.select("body").add_child(eml! {
             <follow target=sprite>
@@ -57,7 +59,7 @@ fn spawn_sprites(
 }
 
 fn move_sprite(mut sprites: Query<&mut Transform, With<Sprite>>, time: Res<Time>) {
-    let delta = time.delta_seconds();
+    let delta = time.delta_secs();
     for mut sprite in sprites.iter_mut() {
         sprite.translation += Vec3::new(25. * delta, -25. * delta, 0.)
     }

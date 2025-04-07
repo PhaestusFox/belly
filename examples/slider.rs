@@ -12,9 +12,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let label = commands.spawn_empty().id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="50px" s:flex-direction="column" s:justify-content="center" s:align-items="center">
             <label {label}/>
             <slider

@@ -14,10 +14,10 @@ struct Counter {
     count: i32,
 }
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     // spawn empty Entity to reference it in binds & widgets
     let counter = commands.spawn(Counter::default()).id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:justify-content="center" s:align-items="center" s:align-content="center">
             // connect the press signal to closure executed on the Counter context
             <button on:press=run!(for counter |c: &mut Counter| c.count += 1 )>"+"</button>

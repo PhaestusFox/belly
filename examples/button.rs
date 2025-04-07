@@ -35,20 +35,20 @@ enum ColorBox {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let label = commands.spawn_empty().insert(Greet::default()).id();
     let that = commands.spawn_empty().id();
     let colorbox = commands.spawn_empty().insert(ColorBox::Red).id();
     let grow = commands.spawn_empty().id();
-    commands.add(eml! {
+    commands.queue(eml! {
         <body>
             <div>
-                <button on:press=|ctx| info!("I was pressed at {}", ctx.time().elapsed_seconds())>
+                <button on:press=|ctx| info!("I was pressed at {}", ctx.time().elapsed_secs())>
                     "Press me and look at the logs!"
                 </button>
             </div>
             <div>
-                <button on:press=|ctx| ctx.send_event(MyEvent { emited_at: ctx.time().elapsed_seconds() })>
+                <button on:press=|ctx| ctx.send_event(MyEvent { emited_at: ctx.time().elapsed_secs() })>
 
                     "I will send custom event, check the logs"
                 </button>
@@ -93,7 +93,7 @@ fn setup(mut commands: Commands) {
                 </button>
             </div>
             <div>
-                <button {grow} s:width=managed() on:press=run!(for grow |s: &mut Style| {
+                <button {grow} s:width=managed() on:press=run!(for grow |s: &mut Node| {
                     s.width = Val::Px(if let Val::Px(width) = s.width {
                         width + 5.
                     } else {
@@ -105,7 +105,7 @@ fn setup(mut commands: Commands) {
             </div>
         </body>
     });
-    commands.add(StyleSheet::parse(
+    commands.queue(StyleSheet::parse(
         r#"
         body {
             flex-direction: column;

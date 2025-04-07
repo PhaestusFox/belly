@@ -123,7 +123,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
     }
 
     pub fn add<C: Command>(&mut self, command: C) {
-        self.commands.add(command)
+        self.commands.queue(command)
     }
 
     pub fn insert<'a>(&'a mut self, bundle: impl Bundle) -> EntityCommands<'a> {
@@ -133,7 +133,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
     }
 
     pub fn render(&mut self, elements: Eml) {
-        self.commands.add(elements.render_to(self.data.entity));
+        self.commands.queue(elements.render_to(self.data.entity));
     }
 
     pub fn entity(&self) -> Entity {
@@ -189,7 +189,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
 
     pub fn update_element<F: FnOnce(&mut Element) + Send + Sync + 'static>(&mut self, update: F) {
         let entity = self.entity();
-        self.commands.add(move |world: &mut World| {
+        self.commands.queue(move |world: &mut World| {
             let mut new_id;
             let mut old_id = None;
             if let Some(mut element) = world.entity_mut(entity).get_mut::<Element>() {
@@ -224,7 +224,7 @@ impl<'w, 's> WidgetContext<'w, 's> {
                 }
             }
             if let Some(entity) = replaced_entity {
-                world.get_entity_mut(entity).map(|e| e.despawn_recursive());
+                world.get_entity_mut(entity).map(|e| e.despawn_recursive()).expect("This to work");
             }
         });
     }
@@ -442,7 +442,7 @@ pub trait Widget {
             }
         });
         let entity = ctx.entity();
-        ctx.commands.add(move |world: &mut World| {
+        ctx.commands.queue(move |world: &mut World| {
             world
                 .resource_mut::<Events<RequestReadyEvent>>()
                 .send(RequestReadyEvent(entity));
@@ -554,9 +554,10 @@ impl Eml {
     pub fn add_to(self, parent: Entity) -> impl Command {
         move |world: &mut World| {
             let child = (self.builder)(world, None);
-            world.entity_mut(parent).push_children(&[child]);
+            world.entity_mut(parent).add_child(child);
         }
     }
+
     pub fn build(self, world: &mut World) -> Entity {
         (self.builder)(world, None)
     }

@@ -1,8 +1,9 @@
 use crate::common::*;
-use ab_glyph::ScaleFont;
+use ab_glyph::{FontRef, ScaleFont};
 use belly_core::{build::*, input};
 use belly_macro::*;
 use bevy::{input::keyboard::KeyboardInput, prelude::*};
+use ab_glyph::Font as AbFont;
 
 use crate::common::Label;
 
@@ -203,9 +204,11 @@ pub struct TextInputCursor {
 }
 
 fn get_char_advance(ch: char, font: &Font, font_size: f32) -> f32 {
-    let font = ab_glyph::Font::as_scaled(&font.font, font_size);
-    let glyph = font.glyph_id(ch);
-    font.h_advance(glyph)
+    if let Ok(font) = FontRef::try_from_slice(&font.data) {
+        let font = font.as_scaled(font_size);
+        let glyph = font.glyph_id(ch);
+        font.h_advance(glyph)
+    } else { 0.0 }
 }
 
 fn process_keyboard_input(
@@ -213,12 +216,10 @@ fn process_keyboard_input(
     mut keyboard_input: EventReader<KeyboardInput>,
     keyboard: Res<ButtonInput<KeyCode>>,
     fonts: Res<Assets<Font>>,
-    nodes: Query<&Node>,
-    mut characters: EventReader<ReceivedCharacter>,
+    mut nodes: Query<(&mut Node, &ComputedNode)>,
     mut inputs: Query<(Entity, &mut TextInput, &Element)>,
     mut cursors: Query<&mut TextInputCursor>,
-    mut styles: Query<&mut Style>,
-    texts: Query<&Text>,
+    texts: Query<(&Text, &TextFont)>,
 ) {
     let Some((entity, mut input)) = inputs
         .iter_mut()
@@ -228,11 +229,11 @@ fn process_keyboard_input(
     else {
         return;
     };
-    if characters.is_empty() && keyboard_input.is_empty() && !changed_elements.contains(entity) {
+    if keyboard_input.is_empty() && !changed_elements.contains(entity) {
         return;
     }
 
-    let Ok(text) = texts.get(input.text) else {
+    let Ok((_text, text_font)) = texts.get(input.text) else {
         return;
     };
 
@@ -315,47 +316,45 @@ fn process_keyboard_input(
                     index = selected.min;
                     selected.stop();
                     input.value = chars.iter().collect();
-                } else {
-                    if chars.len() > index {
-                        chars.remove(index);
-                        input.value = chars.iter().collect();
-                    }
+                } else if chars.len() > index {
+                    chars.remove(index);
+                    input.value = chars.iter().collect();
                 }
             }
             _ => (),
         }
     }
-    for ch in characters
-        .read()
-        .map(|c| c.char.chars())
-        .flatten()
-        .filter(|c| !c.is_control())
-    {
-        if !selected.is_empty() {
-            chars.drain(selected.range());
-            index = selected.min;
-            selected.stop();
-        }
-        chars.insert(index, ch);
-        input.value = chars.iter().collect();
-        index += 1;
-    }
+    // for ch in characters
+    //     .read()
+    //     .map(|c| c.char.chars())
+    //     .flatten()
+    //     .filter(|c| !c.is_control())
+    // {
+    //     if !selected.is_empty() {
+    //         chars.drain(selected.range());
+    //         index = selected.min;
+    //         selected.stop();
+    //     }
+    //     chars.insert(index, ch);
+    //     input.value = chars.iter().collect();
+    //     index += 1;
+    // }
 
     if let Ok(mut cursor) = cursors.get_mut(input.cursor) {
         cursor.state = 1.;
     }
-    let Ok(node) = nodes.get(input.container) else {
+    let Ok((_node, computed_node)) = nodes.get(input.container) else {
         return;
     };
-    let container_width = node.size().x;
+    let container_width = computed_node.size().x;
     let mut position_from_start = 0.;
     let mut selection_from = 0.;
     let mut selection_to = 0.;
     let mut text_width = 0.;
-    let Some(font) = fonts.get(&text.sections[0].style.font) else {
+    let Some(font) = fonts.get(&text_font.font) else {
         return;
     };
-    let font_size = text.sections[0].style.font_size;
+    let font_size = text_font.font_size;
     for (idx, ch) in chars.iter().enumerate() {
         let advance = get_char_advance(*ch, font, font_size);
         text_width += advance;
@@ -369,8 +368,8 @@ fn process_keyboard_input(
             selection_to += advance;
         }
     }
-    let mut offset = if let Ok(contaienr_style) = styles.get_mut(input.container) {
-        match contaienr_style.padding.left {
+    let mut offset = if let Ok((container_node, _computed_node)) = nodes.get_mut(input.container) {
+        match container_node.padding.left {
             Val::Px(x) => x,
             _ => 0.,
         }
@@ -392,13 +391,13 @@ fn process_keyboard_input(
     selection_to = selection_to.min(container_width);
     let cursor_position = position_from_start + offset;
     // let offset = (position_from_start - container_width).max(0.);
-    if let Ok(mut cursor_style) = styles.get_mut(input.cursor) {
+    if let Ok((mut cursor_style, _computed_cursor)) = nodes.get_mut(input.cursor) {
         cursor_style.left = Val::Px(cursor_position);
     }
-    if let Ok(mut contaienr_style) = styles.get_mut(input.container) {
+    if let Ok((mut contaienr_style, _computed)) = nodes.get_mut(input.container) {
         contaienr_style.padding.left = Val::Px(offset);
     }
-    if let Ok(mut selection_style) = styles.get_mut(input.selection) {
+    if let Ok((mut selection_style, _computed)) = nodes.get_mut(input.selection) {
         if !selected.is_empty() {
             selection_style.display = Display::Flex;
             selection_style.left = Val::Px(selection_from);
@@ -419,7 +418,7 @@ fn process_cursor_focus(
     mut commands: Commands,
     mut input: Query<(&mut TextInput, &Element), Changed<Element>>,
     cursors: Query<&TextInputCursor>,
-    mut styles: Query<&mut Style>,
+    mut nodes: Query<&mut Node>,
 ) {
     for (mut input, element) in input.iter_mut() {
         if element.focused() && !cursors.contains(input.cursor) {
@@ -428,17 +427,17 @@ fn process_cursor_focus(
                 .insert(TextInputCursor::default());
         }
         if !element.focused() && !cursors.contains(input.cursor) {
-            if let Ok(mut style) = styles.get_mut(input.cursor) {
+            if let Ok(mut style) = nodes.get_mut(input.cursor) {
                 style.display = Display::None;
             }
         }
         if !element.focused() && cursors.contains(input.cursor) {
             input.index = 0;
             commands.entity(input.cursor).remove::<TextInputCursor>();
-            if let Ok(mut style) = styles.get_mut(input.cursor) {
+            if let Ok(mut style) = nodes.get_mut(input.cursor) {
                 style.display = Display::None;
             }
-            if let Ok(mut contaienr_style) = styles.get_mut(input.container) {
+            if let Ok(mut contaienr_style) = nodes.get_mut(input.container) {
                 contaienr_style.padding.left = Val::Px(0.);
             }
         }
@@ -448,8 +447,8 @@ fn process_cursor_focus(
 fn process_mouse(
     mut events: EventReader<PointerInput>,
     mut inputs: Query<(Entity, &mut TextInput, &mut Element)>,
-    texts: Query<&Text>,
-    styles: Query<(&Style, &GlobalTransform, &Node)>,
+    texts: Query<(&Text, &TextFont)>,
+    nodes: Query<(&GlobalTransform, &Node, &ComputedNode)>,
     fonts: Res<Assets<Font>>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
@@ -469,22 +468,22 @@ fn process_mouse(
             if evt.dragging() && !evt.is_dragging_from(entity) {
                 continue;
             }
-            let Ok((container, tr, node)) = styles.get(input.container) else {
+            let Ok((tr, node, computed_node)) = nodes.get(input.container) else {
                 continue;
             };
-            let mut offset = if let Val::Px(offset) = container.padding.left {
+            let mut offset = if let Val::Px(offset) = node.padding.left {
                 offset
             } else {
                 0.
             };
-            let Ok(text) = texts.get(input.text) else {
+            let Ok((_text, text_font)) = texts.get(input.text) else {
                 continue;
             };
-            let Some(font) = fonts.get(&text.sections[0].style.font) else {
+            let Some(font) = fonts.get(&text_font.font) else {
                 continue;
             };
-            let font_size = text.sections[0].style.font_size;
-            let pos = (evt.pos - tr.translation().truncate() + node.size() * 0.5).x;
+            let font_size = text_font.font_size;
+            let pos = (evt.pos - tr.translation().truncate() + computed_node.size() * 0.5).x;
             let mut index = 0;
             let mut idx_found = false;
             let mut word_start = 0;
@@ -541,17 +540,17 @@ fn process_mouse(
     }
 }
 
-fn blink_cursor(time: Res<Time>, mut cursor: Query<(&mut TextInputCursor, &mut Style)>) {
-    for (mut cursor, mut style) in cursor.iter_mut() {
-        cursor.state -= time.delta_seconds();
+fn blink_cursor(time: Res<Time>, mut cursor: Query<(&mut TextInputCursor, &mut Node)>) {
+    for (mut cursor, mut node) in cursor.iter_mut() {
+        cursor.state -= time.delta_secs();
         if cursor.state < 0. {
             cursor.state = 1.;
         }
-        if cursor.state >= 0.5 && style.display == Display::None {
-            style.display = Display::Flex;
+        if cursor.state >= 0.5 && node.display == Display::None {
+            node.display = Display::Flex;
         }
-        if cursor.state < 0.5 && style.display != Display::None {
-            style.display = Display::None;
+        if cursor.state < 0.5 && node.display != Display::None {
+            node.display = Display::None;
         }
     }
 }

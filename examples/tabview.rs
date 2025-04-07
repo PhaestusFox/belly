@@ -14,8 +14,8 @@ fn main() {
 #[derive(Component, Default)]
 struct TabController;
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::parse(
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::parse(
         "
         body {
           flex-direction: column;
@@ -25,7 +25,7 @@ fn setup(mut commands: Commands) {
         }
     ",
     ));
-    commands.add(eml! {
+    commands.queue(eml! {
       <body s:padding="20px">
         <buttongroup on:value_change=|ctx| {
             let ev = ctx.event();

@@ -86,9 +86,9 @@ const COLORS: &[&'static str] = &[
 ];
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::load("party-editor/styles.ess"));
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::load("party-editor/styles.ess"));
+    commands.queue(eml! {
         <body>
             <span id="animals" c:column>
                 <span c:row>"Choose & Edit your fighters!"</span>
@@ -133,7 +133,7 @@ fn Animal(ctx: &mut WidgetContext, ch: &mut AnimalState) {
     let this = ctx.entity();
     let color = ctx.spawn();
     ctx.commands()
-        .add(from!(this, AnimalState: color) >> to!(color, BackgroundColor:0));
+        .queue(from!(this, AnimalState: color) >> to!(color, BackgroundColor:0));
     ctx.render(eml! {
         <button>
             <span {color} c:animal s:background-color=managed()>

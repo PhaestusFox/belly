@@ -173,7 +173,7 @@ pub struct State {
 #[query_data(mutable)]
 pub struct NodeQuery {
     entity: Entity,
-    node: &'static Node,
+    node: &'static ComputedNode,
     global_transform: &'static GlobalTransform,
     interaction: Option<&'static mut Interaction>,
     focus_policy: Option<&'static FocusPolicy>,
@@ -335,14 +335,14 @@ pub fn pointer_input_system(
 
     let Some(pos) = cursor_position else { return };
     if down_entities.len() > 0 {
-        if time.elapsed_seconds() - state.was_down_at < 0.3 && down_entities == state.was_down {
+        if time.elapsed_secs() - state.was_down_at < 0.3 && down_entities == state.was_down {
             state.presses += 1;
         } else {
             state.presses = 0;
         }
         let presses = state.presses + 1;
         state.was_down = down_entities.clone();
-        state.was_down_at = time.elapsed_seconds();
+        state.was_down_at = time.elapsed_secs();
         events.send(PointerInput {
             pos,
             delta,

@@ -5,7 +5,7 @@ use crate::ess::{PropertyExtractor, PropertyTransformer};
 use bevy::asset::io::Reader;
 use bevy::asset::AsyncReadExt;
 use bevy::reflect::TypePath;
-use bevy::utils::BoxedFuture;
+// BoxedFuture is no longer needed with async fn
 use bevy::{asset::AssetLoader, prelude::*, utils::HashMap};
 use std::sync::Arc;
 use tagstr::*;
@@ -61,10 +61,7 @@ fn walk(node: &EmlNode, world: &mut World, parent: Option<Entity>) -> Option<Ent
     match node {
         EmlNode::Text(text) => {
             let entity = world
-                .spawn(TextBundle {
-                    text: Text::from_section(text, Default::default()),
-                    ..default()
-                })
+                .spawn(Text::new(text))
                 .insert(Element::inline())
                 .id();
             Some(entity)
@@ -125,13 +122,13 @@ impl AssetLoader for EmlLoader {
         &["eml"]
     }
 
-    fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader,
-        _: &'a Self::Settings,
-        load_context: &'a mut bevy::asset::LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
+    fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _: &Self::Settings,
+        load_context: &mut bevy::asset::LoadContext,
+    ) -> impl std::future::Future<Output = Result<Self::Asset, Self::Error>> + Send {
+        async move {
             let mut source = String::new();
             reader.read_to_string(&mut source).await.unwrap();
 
@@ -151,7 +148,7 @@ impl AssetLoader for EmlLoader {
                     // .context(format!("Unable to parse {}", path.to_str().unwrap())))
                 }
             }
-        })
+        }
     }
 }
 
@@ -169,7 +166,7 @@ pub fn update_eml_scene(
 
             for (entity, _, _) in scenes.iter().filter(|(_, s, _)| s.asset == handle) {
                 let asset = asset.clone();
-                commands.add(move |world: &mut World| {
+                commands.queue(move |world: &mut World| {
                     asset.write(world, entity);
                 });
             }
@@ -184,7 +181,7 @@ pub fn update_eml_scene(
                     }
                 }
                 let asset = asset.clone();
-                commands.add(move |world: &mut World| {
+                commands.queue(move |world: &mut World| {
                     asset.write(world, entity);
                 });
             }

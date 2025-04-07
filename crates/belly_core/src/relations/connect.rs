@@ -146,7 +146,7 @@ impl<'a, 'w, 's, E: Event> EventContext<'a, 'w, 's, E> {
         self.asset_server.load(path)
     }
     pub fn add<C: Command>(&mut self, command: C) {
-        self.elements.commands.add(command);
+        self.elements.commands.queue(command);
     }
     pub fn commands(&mut self) -> &mut Commands<'w, 's> {
         &mut self.elements.commands
@@ -161,7 +161,7 @@ impl<'a, 'w, 's, E: Event> EventContext<'a, 'w, 's, E> {
         self.time_resource
     }
     pub fn send_event<T: Event>(&mut self, event: T) {
-        self.elements.commands.add(|world: &mut World| {
+        self.elements.commands.queue(|world: &mut World| {
             world.resource_mut::<Events<T>>().send(event);
         });
     }
@@ -354,7 +354,7 @@ impl<Q: WorldQuery, E: Event> Default for EntityConnections<Q, E> {
     }
 }
 
-// commands.add( /* one of */
+// commands.queue( /* one of */
 //  Connect::entity(e).on(btn_pressed).func(|_| { })
 //  Connect::entity(e).on(btn_pressed).handle(run!(for e |_| { })
 //  Connect::event(mouse_down).to_func(|_| { }) --- ?
@@ -460,7 +460,7 @@ impl<'w, 's, 'a> ConnectCommands<'w, 's, 'a, ()> {
 
 impl<'w, 's, 'a, E: Event> ConnectCommands<'w, 's, 'a, WorldEvent<E>> {
     pub fn to_func<F: 'static + Fn(&mut EventContext<E>)>(self, func: F) {
-        self.commands.add(Connection {
+        self.commands.queue(Connection {
             target: None,
             source: None,
             filter: EventFilter::World(self.data),
@@ -474,7 +474,7 @@ impl<'w, 's, 'a, E: Event> ConnectCommands<'w, 's, 'a, WorldEvent<E>> {
         self,
         (_, target, handler): (PhantomData<Q>, Option<Entity>, F),
     ) {
-        self.commands.add(Connection {
+        self.commands.queue(Connection {
             target,
             source: None,
             filter: EventFilter::World(self.data),
@@ -499,7 +499,7 @@ impl<'w, 's, 'a> ConnectCommands<'w, 's, 'a, Entity> {
 impl<'w, 's, 'a, E: Event> ConnectCommands<'w, 's, 'a, (Entity, EventFilter<E>)> {
     pub fn func<F: 'static + Fn(&mut EventContext<E>)>(self, func: F) {
         let (entity, filter) = self.data;
-        self.commands.add(Connection {
+        self.commands.queue(Connection {
             filter,
             target: None,
             source: Some(entity),
@@ -515,7 +515,7 @@ impl<'w, 's, 'a, E: Event> ConnectCommands<'w, 's, 'a, (Entity, EventFilter<E>)>
         (_, target, handler): (PhantomData<Q>, Option<Entity>, F),
     ) {
         let (entity, filter) = self.data;
-        self.commands.add(Connection {
+        self.commands.queue(Connection {
             target,
             filter,
             source: Some(entity),

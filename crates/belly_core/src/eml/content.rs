@@ -24,10 +24,10 @@ pub trait UpdateContent: Sized {
 
 impl IntoContent for String {
     fn into_content(self, _parent: Entity, world: &mut World) -> Vec<Entity> {
-        let text = Text::from_section(self, Default::default());
+        let text = Text::new(self);
         let entity = world
             .spawn(TextElementBundle {
-                text: TextBundle { text, ..default() },
+                text,
                 ..default()
             })
             .id();
@@ -38,7 +38,7 @@ impl IntoContent for String {
 impl UpdateContent for String {
     type Query = &'static mut Text;
     fn update_content(mut item: QueryItem<Self::Query>, value: &Self) {
-        item.sections[0].value = value.clone();
+        item.0 = value.clone();
     }
 }
 
@@ -50,7 +50,7 @@ impl IntoContent for &str {
 impl UpdateContent for &str {
     type Query = &'static mut Text;
     fn update_content(mut item: QueryItem<Self::Query>, value: &Self) {
-        item.sections[0].value = value.to_string();
+        item.0 = value.to_string();
     }
 }
 

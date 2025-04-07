@@ -12,9 +12,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let names = vec!["Alice", "Cart", "François", "Yasha"];
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="50px" s:flex-direction="column">
             <for name in=names>
                 <div>"My name is "{name}</div>

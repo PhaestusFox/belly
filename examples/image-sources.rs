@@ -12,17 +12,17 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let img0 = "icon.png";
     let img1: Handle<Image> = asset_server.load("bevy_logo_light.png");
     let img2: Handle<Image> = asset_server.load("bevy_logo_dark.png");
-    commands.add(StyleSheet::parse(
+    commands.queue(StyleSheet::parse(
         "
         body { padding: 50px; }
         body > img { width: 150px; height: 150px; margin: 50px; }
     ",
     ));
-    commands.add(eml! {
+    commands.queue(eml! {
         <body>
             <img src=img0/>
             <img src=img1/>

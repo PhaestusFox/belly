@@ -31,7 +31,7 @@ style_property! {
     GridAutoFlowProperty("grid-auto-flow") {
         Default = "row";
         Item = GridAutoFlow;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<GridAutoFlow>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -220,7 +220,7 @@ style_property! {
     GridAutoRowsProperty("grid-auto-rows") {
         Default = "none";
         Item = Vec<GridTrack>;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = GridTrackParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -242,7 +242,7 @@ style_property! {
     GridAutoColumnsProperty("grid-auto-columns") {
         Default = "none";
         Item = Vec<GridTrack>;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = GridTrackParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -313,7 +313,7 @@ style_property! {
     GridTemplateRowsProperty("grid-template-rows") {
         Default = "none";
         Item = Vec<RepeatedGridTrack>;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = RepeatedGridTrackParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -336,7 +336,7 @@ style_property! {
     GridTemplateColumnsProperty("grid-template-columns") {
         Default = "none";
         Item = Vec<RepeatedGridTrack>;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = RepeatedGridTrackParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -415,7 +415,7 @@ style_property! {
     GridRowProperty("grid-row") {
         Default = "span 1";
         Item = GridPlacement;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = GridPlacementParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -438,7 +438,7 @@ style_property! {
     GridColumnProperty("grid-column") {
         Default = "span 1";
         Item = GridPlacement;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = GridPlacementParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -471,7 +471,7 @@ style_property! {
     JustifySelfProperty("justify-self") {
         Default = "auto";
         Item = JustifySelf;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<JustifySelf>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -504,7 +504,7 @@ style_property! {
     JustifyItemsProperty("justify-items") {
         Default = "default";
         Item = JustifyItems;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<JustifyItems>;
         Apply = |value, style, _assets, _commands, _entity| {

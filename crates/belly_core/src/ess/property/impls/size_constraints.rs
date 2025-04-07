@@ -12,7 +12,7 @@ style_property! {
     WidthProperty("width") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -32,7 +32,7 @@ style_property! {
     HeightProperty("height") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -53,7 +53,7 @@ style_property! {
     MinWidthProperty("min-width") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -73,7 +73,7 @@ style_property! {
     MinHeightProperty("min-height") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -94,7 +94,7 @@ style_property! {
     MaxWidthProperty("max-width") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -114,7 +114,7 @@ style_property! {
     MaxHeightProperty("max-height") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -139,7 +139,7 @@ style_property! {
     AspectRatioProperty("aspect-ratio") {
         Default = "none";
         Item = Option<f32>;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::OptionalNumParser;
         Apply = |value, style, _assets, _commands, _entity| {

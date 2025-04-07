@@ -10,9 +10,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     let img = commands.spawn_empty().id();
-    commands.add(StyleSheet::parse(
+    commands.queue(StyleSheet::parse(
         r#"
         body {
             flex-wrap: no-wrap;
@@ -58,7 +58,7 @@ fn setup(mut commands: Commands) {
         }
     "#,
     ));
-    commands.add(eml! {
+    commands.queue(eml! {
         <body>
             <img {img} src="icon.png" mode="fit"/>
             <buttongroup bind:value=to!(img, Img:mode) c:group>

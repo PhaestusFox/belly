@@ -12,9 +12,9 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::load("selectors.ess"));
-    commands.add(eml! {
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::load("selectors.ess"));
+    commands.queue(eml! {
         <body>
             <button c:red><span c:content>"red"</span></button>
             <button c:green><span c:content>"green"</span></button>

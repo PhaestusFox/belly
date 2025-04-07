@@ -43,20 +43,20 @@ fn follow(ctx: &mut WidgetContext) {
 }
 
 fn follow_system(
-    mut follows: Query<(Entity, &Follow, &mut Style, &Node)>,
+    mut follows: Query<(Entity, &Follow, &mut Node, &ComputedNode)>,
     transforms: Query<&GlobalTransform>,
     mut commands: Commands,
     windows: Query<&Window>,
 ) {
     for window in windows.iter() {
-        for (entity, follow, mut style, node) in follows.iter_mut() {
+        for (entity, follow, mut node, computed_node) in follows.iter_mut() {
             let Ok(tr) = transforms.get(follow.target) else {
                 commands.entity(entity).despawn_recursive();
                 continue;
             };
             let pos = tr.translation();
-            style.left = Val::Px((pos.x + window.width() * 0.5 - 0.5 * node.size().x).round());
-            style.top = Val::Px((window.height() * 0.5 - pos.y - 0.5 * node.size().y).round());
+            node.left = Val::Px((pos.x + window.width() * 0.5 - 0.5 * computed_node.size().x).round());
+            node.top = Val::Px((window.height() * 0.5 - pos.y - 0.5 * computed_node.size().y).round());
         }
     }
 }

@@ -10,7 +10,7 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d::default());
     let flat = Stylebox {
         slice: UiRect::all(Val::Percent(50.)),
         width: UiRect::all(Val::Px(32.)),
@@ -24,21 +24,18 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         ..default()
     };
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                width: Val::Percent(100.),
-                height: Val::Percent(100.),
-                justify_content: JustifyContent::SpaceAround,
-                align_items: AlignItems::Center,
-                ..default()
-            },
+        .spawn(Node {
+            width: Val::Percent(100.),
+            height: Val::Percent(100.),
+            justify_content: JustifyContent::SpaceAround,
+            align_items: AlignItems::Center,
             ..default()
         })
         .with_children(|parent| {
             for stylebox in [flat, tex] {
                 parent.spawn(StyleboxBundle {
                     stylebox,
-                    style: Style {
+                    node:Node {
                         width: Val::Percent(40.),
                         height: Val::Percent(80.),
                         ..default()

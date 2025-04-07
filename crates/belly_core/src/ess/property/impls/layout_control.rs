@@ -23,7 +23,7 @@ style_property! {
     PositionTypeProperty("position-type") {
         Default = "relative";
         Item = PositionType;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<PositionType>;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -56,7 +56,7 @@ style_property! {
     LeftProperty("left") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -76,7 +76,7 @@ style_property! {
     RightProperty("right") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -96,7 +96,7 @@ style_property! {
     TopProperty("top") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -116,7 +116,7 @@ style_property! {
     BottomProperty("bottom") {
         Default = "undefined";
         Item = Val;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::ValParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -134,7 +134,7 @@ style_property! {
     OverflowProperty("overflow") {
         Default = "visible";
         Item = Overflow;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::OverflowParser;
         Apply = |value, style, _assets, _commands, _entity| {
@@ -166,7 +166,7 @@ style_property! {
     DisplayProperty("display") {
         Default = "flex";
         Item = Display;
-        Components = &'static mut Style;
+        Components = &'static mut Node;
         Filters = With<Node>;
         Parser = parse::IdentifierParser<Display>;
         Apply = |value, style, _assets, _commands, _entity| {

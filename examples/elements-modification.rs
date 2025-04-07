@@ -29,8 +29,8 @@ fn toggle_container(ctx: &mut EventContext<impl Event>) {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
-    commands.add(StyleSheet::parse(
+    commands.spawn(Camera2d);
+    commands.queue(StyleSheet::parse(
         r#"
         .box {
             margin: 10px;
@@ -55,7 +55,7 @@ fn setup(mut commands: Commands) {
         }
     "#,
     ));
-    commands.add(eml! {
+    commands.queue(eml! {
         <body s:padding="50px" c:vbox>
             <div c:hbox>
                 <button on:press=|ctx| { ctx.send_event(ToggleClass("red")); }>

@@ -315,13 +315,8 @@ fn parse<'a>(ctx: &Context, element: &'a Node) -> syn::Result<TokenStream> {
                 children = quote! {
                     #children
                     __ctx.children.push(
-                        __world.spawn(::bevy::prelude::TextBundle {
-                            text: ::bevy::prelude::Text::from_section(
-                                #text,
-                                ::std::default::Default::default()
-                            ),
-                            ..default()
-                        })
+                        __world.spawn(
+                            ::bevy::prelude::Text::new(#text))
                         .insert(#core::element::Element::inline())
                         .id()
                     );

@@ -54,5 +54,5 @@ pub fn setup_defaults(
     for rule in widgets.default_styles(&parser) {
         rules.push(rule);
     }
-    commands.add(StyleSheet::add_default(rules));
+    commands.queue(StyleSheet::add_default(rules));
 }
